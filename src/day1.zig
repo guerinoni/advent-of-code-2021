@@ -45,17 +45,17 @@ const std = @import("std");
 
 const input = @embedFile("../input/day1.txt");
 
-pub fn solve() void {
-    std.log.info("Day1 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(), part2()});
-}
-
-fn part1() !u32 {
+pub fn solve() !void {
     var lines = std.mem.tokenize(input, "\n");
     var nums = std.ArrayList(u32).init(std.testing.allocator);
     while (lines.next()) |line| {
         try nums.append(try std.fmt.parseInt(u32, line, 10));
     }
-    
+
+    std.log.info("Day1 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(nums), part2(nums)});
+}
+
+fn part1(nums: std.ArrayList(u32)) !u32 {
     var i : u32 = 0;
     var increases : u32 = 0;
     while (i < nums.items.len - 1) : (i += 1) {
@@ -101,17 +101,38 @@ fn part1() !u32 {
 // Consider sums of a three-measurement sliding window. How many sums are larger than the previous sum?
 
 
-fn part2() !u32 {
-    var lines = std.mem.tokenize(input, "\n");
-    var nums = std.ArrayList(u32).init(std.testing.allocator);
-    while (lines.next()) |line| {
-        try nums.append(try std.fmt.parseInt(u32, line, 10));
-    }
-    
+fn part2(nums: std.ArrayList(u32)) !u32 {
     var increases : u32 = 0;
     for (nums.items[0..nums.items.len - 3]) | num, i | {
         if (num < nums.items[i + 3]) { increases += 1; }
     }
 
     return increases;
+}
+
+test "part2 test" {
+    const Vec32 = std.ArrayList(u32);
+    var nums = Vec32.init(std.testing.allocator);
+    nums.deinit();
+    try nums.append(1);
+    try nums.append(2);
+    try nums.append(3);
+    try nums.append(4);
+    var ret = try part1(nums);
+    try std.testing.expect(ret == 3);
+}
+
+test "part2 test" {
+    const Vec32 = std.ArrayList(u32);
+    var nums = Vec32.init(std.testing.allocator);
+    nums.deinit();
+    try nums.append(0);
+    try nums.append(1);
+    try nums.append(2);
+    try nums.append(3);
+    try nums.append(4);
+    try nums.append(5);
+    try nums.append(6);
+    var ret = try part2(nums);
+    try std.testing.expect(ret == 4);
 }
