@@ -33,7 +33,7 @@ const std = @import("std");
 
 const input = @embedFile("../input/day2.txt");
 
-pub fn solve() void {
+pub fn solve() !void {
     std.log.info("Day2 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(), part2()});
 }
 
