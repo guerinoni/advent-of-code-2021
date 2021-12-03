@@ -48,6 +48,7 @@ const input = @embedFile("../input/day1.txt");
 pub fn solve() !void {
     var lines = std.mem.tokenize(input, "\n");
     var nums = std.ArrayList(u32).init(std.testing.allocator);
+    defer nums.deinit();
     while (lines.next()) |line| {
         try nums.append(try std.fmt.parseInt(u32, line, 10));
     }
@@ -113,7 +114,7 @@ fn part2(nums: std.ArrayList(u32)) !u32 {
 test "part2 test" {
     const Vec32 = std.ArrayList(u32);
     var nums = Vec32.init(std.testing.allocator);
-    nums.deinit();
+    defer nums.deinit();
     try nums.append(1);
     try nums.append(2);
     try nums.append(3);
@@ -125,7 +126,7 @@ test "part2 test" {
 test "part2 test" {
     const Vec32 = std.ArrayList(u32);
     var nums = Vec32.init(std.testing.allocator);
-    nums.deinit();
+    defer nums.deinit();
     try nums.append(0);
     try nums.append(1);
     try nums.append(2);
