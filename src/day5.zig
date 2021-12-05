@@ -41,7 +41,7 @@ const std = @import("std");
 
 const input = @embedFile("../input/day5.txt");
 
-const Point = struct { x: u32, y: u32 };
+const Point = struct { x: i64, y: i64 };
 
 const VentLine = struct {
     start: Point,
@@ -50,10 +50,10 @@ const VentLine = struct {
 
 
 const VentMap = struct {
-    map: std.AutoHashMap(Point, u32) = std.AutoHashMap(Point, u32).init(std.testing.allocator),
+    map: std.AutoHashMap(Point, i64) = std.AutoHashMap(Point, i64).init(std.testing.allocator),
     overlaps: u32 = 0,
 
-    pub fn mark(self: *VentMap, x: u32, y: u32) void {
+    pub fn mark(self: *VentMap, x: i64, y: i64) void {
         const result = self.map.getOrPut(Point{ .x = x, .y = y }) catch unreachable;
         if (result.found_existing) {
             if (result.value_ptr.* == 1) {
@@ -76,23 +76,23 @@ pub fn solve() !void {
             var parts = std.mem.tokenize(line, " ,->");
             vents.append(.{
                 .start = .{
-                    .x = try std.fmt.parseInt(u32, parts.next().?, 10),
-                    .y = try std.fmt.parseInt(u32, parts.next().?, 10),
+                    .x = try std.fmt.parseInt(i64, parts.next().?, 10),
+                    .y = try std.fmt.parseInt(i64, parts.next().?, 10),
                 },
                 .end = .{
-                    .x = try std.fmt.parseInt(u32, parts.next().?, 10),
-                    .y = try std.fmt.parseInt(u32, parts.next().?, 10),
+                    .x = try std.fmt.parseInt(i64, parts.next().?, 10),
+                    .y = try std.fmt.parseInt(i64, parts.next().?, 10),
                 },
             }) catch unreachable;
         }
         break :blk vents.toOwnedSlice();
     };
     
-    std.log.info("Day5 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(vents), part2()});
+    var map: VentMap = .{};
+    std.log.info("Day5 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(vents, &map), part2(vents, &map)});
 }
 
-fn part1(vents: []VentLine) !u32 {
-    var map: VentMap = .{};
+fn part1(vents: []VentLine, map: *VentMap) !u32 {
     for (vents) |it| {
         if (it.start.x == it.end.x) {
             var curr_y = std.math.min(it.start.y, it.end.y);
@@ -112,6 +112,46 @@ fn part1(vents: []VentLine) !u32 {
     return map.overlaps;
 }
 
-fn part2() !u32 {
-    return 0;
+// --- Part Two ---
+// Unfortunately, considering only horizontal and vertical lines doesn't give you the full picture; you need to also consider diagonal lines.
+
+// Because of the limits of the hydrothermal vent mapping system, the lines in your list will only ever be horizontal, vertical, or a diagonal line at exactly 45 degrees. In other words:
+
+// An entry like 1,1 -> 3,3 covers points 1,1, 2,2, and 3,3.
+// An entry like 9,7 -> 7,9 covers points 9,7, 8,8, and 7,9.
+// Considering all lines from the above example would now produce the following diagram:
+
+// 1.1....11.
+// .111...2..
+// ..2.1.111.
+// ...1.2.2..
+// .112313211
+// ...1.2....
+// ..1...1...
+// .1.....1..
+// 1.......1.
+// 222111....
+// You still need to determine the number of points where at least two lines overlap. In the above example, this is still anywhere in the diagram with a 2 or larger - now a total of 12 points.
+
+// Consider all of the lines. At how many points do at least two lines overlap?
+
+fn part2(vents: []VentLine, map: *VentMap) !u32 {
+    for (vents) |it| {
+        if (it.start.x != it.end.x and it.start.y != it.end.y) {
+            var curr_x = it.start.x;
+            var end_x = it.end.x;
+            var x_incr: i64 = if (curr_x < end_x) 1 else -1;
+            var curr_y = it.start.y;
+            var end_y = it.end.y;
+            var y_incr: i64 = if (curr_y < end_y) 1 else -1;
+            while (curr_y - y_incr != end_y) : ({
+                curr_x += x_incr;
+                curr_y += y_incr;
+            }) {
+                map.mark(curr_x, curr_y);
+            }
+        }
+    }
+
+    return map.overlaps;
 }
