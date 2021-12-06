@@ -60,33 +60,62 @@ pub fn solve() !void {
         try nums.append(try std.fmt.parseInt(u32, n, 10));
     }
 
-    std.log.info("Day6 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(&nums), part2()});
+    std.log.info("Day6 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(&nums), part2(&nums)});
 }
 
 fn part1(nums: *std.ArrayList(u32)) !u64 {
-    var counter: u32 = 0;
-    while (counter < 80) {
-        counter += 1;
-        var appends: u32 = 0;
-        for (nums.items[0..nums.items.len]) | n, i | {
-            if (n == 0) {
-                appends += 1;
-                nums.items[i] = 6;
-                continue;
-            }
-
-            nums.items[i] -= 1;
-        }
-
-        while (appends > 0) {
-            try nums.append(8);
-            appends -= 1;
-        }
-    }
-
-    return nums.items.len;
+    return udpate_lanternfish(nums, 80);
 }
 
-fn part2() !u32 {
-    return 0;
+// --- Part Two ---
+// Suppose the lanternfish live forever and have unlimited food and space. Would they take over the entire ocean?
+
+// After 256 days in the example above, there would be a total of 26984457539 lanternfish!
+
+// How many lanternfish would there be after 256 days?
+
+fn udpate_lanternfish(nums: *std.ArrayList(u32), days: u32) u64 {
+    var ages: [9]u64 = [_]u64{0} ** 9;
+
+    for (nums.items[0..nums.items.len]) |n| {
+        ages[n] += 1;
+    }
+
+    var i : u32 = 0;
+    while (i < days) : (i += 1) {
+        var new_fish = ages[0];
+        ages[0] = ages[1];
+        ages[1] = ages[2];
+        ages[2] = ages[3];
+        ages[3] = ages[4];
+        ages[4] = ages[5];
+        ages[5] = ages[6];
+        ages[6] = ages[7] + new_fish;
+        ages[7] = ages[8];
+        ages[8] = new_fish;
+    }
+
+    var total: u64 = 0;
+    for (ages) |count| {
+        total += count;
+    }
+    
+    return total;
+}
+
+fn part2(nums: *std.ArrayList(u32)) !u64 {
+    return udpate_lanternfish(nums, 256);
+}
+
+test "part1 test" {
+    const Vec32 = std.ArrayList(u32);
+    var nums = Vec32.init(std.testing.allocator);
+    defer nums.deinit();
+    try nums.append(3);
+    try nums.append(4);
+    try nums.append(3);
+    try nums.append(1);
+    try nums.append(2);
+    var ret = try part1(&nums);
+    try std.testing.expect(ret == 5934);
 }
