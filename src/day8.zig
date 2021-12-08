@@ -1,5 +1,5 @@
 // --- Day 8: Seven Segment Search ---
-// You barely reach the safety of the cave when the whale smashes into the cave mouth, collapsing it. Sensors indicate another exit to this cave at a much greater depth, so you have no choice but to press on.
+// You barely reach the safety of the cave when the whale smashes i64o the cave mouth, collapsing it. Sensors indicate another exit to this cave at a much greater depth, so you have no choice but to press on.
 
 // As your submarine slowly makes its way through the cave system, you notice that the four-digit seven-segment displays in your submarine are malfunctioning; they must have been damaged during the escape. You'll be in a lot of trouble without them, so you'd better figure out what's wrong.
 
@@ -93,6 +93,106 @@ fn part1() !u64 {
     return easy_digits;
 }
 
+// --- Part Two ---
+// Through a little deduction, you should now be able to determine the remaining digits. Consider again the first example above:
+
+// acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab |
+// cdfeb fcadb cdfeb cdbaf
+// After some careful analysis, the mapping between signal wires and segments only make sense in the following configuration:
+
+//  dddd
+// e    a
+// e    a
+//  ffff
+// g    b
+// g    b
+//  cccc
+// So, the unique signal patterns would correspond to the following digits:
+
+// acedgfb: 8
+// cdfbe: 5
+// gcdfa: 2
+// fbcad: 3
+// dab: 7
+// cefabd: 9
+// cdfgeb: 6
+// eafb: 4
+// cagedb: 0
+// ab: 1
+// Then, the four digits of the output value can be decoded:
+
+// cdfeb: 5
+// fcadb: 3
+// cdfeb: 5
+// cdbaf: 3
+// Therefore, the output value for this entry is 5353.
+
+// Following this same process for each entry in the second, larger example above, the output value of each entry can be determined:
+
+// fdgacbe cefdb cefbgd gcbe: 8394
+// fcgedb cgb dgebacf gc: 9781
+// cg cg fdcagb cbg: 1197
+// efabcd cedba gadfec cb: 9361
+// gecf egdcabf bgf bfgea: 4873
+// gebdcfa ecba ca fadegcb: 8418
+// cefg dcbef fcge gbcadfe: 4548
+// ed bcgafe cdgba cbgef: 1625
+// gbdfcae bgc cg cgb: 8717
+// fgae cfgab fg bagce: 4315
+// Adding all of the output values in this larger example produces 61229.
+
+// For each entry, determine all of the wire/segment connections and decode the four-digit output values. What do you get if you add up all of the output values?
+
+fn segment_mask(str: []const u8) u7 {
+    var set = std.StaticBitSet(7).initEmpty();
+    for (str) | ch | { set.set(ch - 'a'); }
+    return set.mask;
+}
+
 fn part2() !i64 {
-    return 0;
+    var sum : i64 = 0;
+    var lines = std.mem.tokenize(input, "\r\n");
+    while (lines.next()) | line | {
+        var parts = std.mem.tokenize(line, " |");
+        var four: u7 = undefined;
+        var seven: u7 = undefined;
+        var i: usize = 0;
+        while (i < 10) : (i += 1) {
+            const str = parts.next().?;
+            if (str.len == 4) four = segment_mask(str);
+            if (str.len == 3) seven = segment_mask(str);
+        }
+
+        i = 0;
+        var num: i64 = 0;
+        while (i < 4) : (i += 1) {
+            const str = parts.next().?;
+            const digit: i64 = switch (str.len) {
+                2 => 1,
+                3 => 7,
+                4 => 4,
+                7 => 8,
+                5 => blk: {
+                    const mask = segment_mask(str);
+                    break :blk 
+                    if (mask & seven == seven) @as(i64, 3)
+                    else if (@popCount(u7, mask & four) == 3) @as(i64, 5)
+                    else @as(i64, 2);
+                },
+                6 => blk: {
+                    const mask = segment_mask(str);
+                    break :blk 
+                    if (mask & four == four) @as(i64, 9)
+                    else if (mask & seven == seven) @as(i64, 0)
+                    else @as(i64, 6);
+                },
+                else => unreachable,
+            };
+            num = num * 10 + digit;
+        }
+        
+        sum += @intCast(i64, num);
+    }
+
+    return sum;
 }
