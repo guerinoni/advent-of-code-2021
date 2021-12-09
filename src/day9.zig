@@ -38,7 +38,7 @@ pub fn solve() !void {
         try nums.append(row.toOwnedSlice());
     }
 
-    std.log.info("Day9 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(nums), part2()});
+    std.log.info("Day9 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(nums), part2(nums)});
 }
 
 fn part1(nums: std.ArrayList([]u8)) !u64 {
@@ -83,6 +83,96 @@ fn part1(nums: std.ArrayList([]u8)) !u64 {
     return risk;
 }
 
-fn part2() !u64 {
-    return 0;
+// --- Part Two ---
+// Next, you need to find the largest basins so you know what areas are most important to avoid.
+
+// A basin is all locations that eventually flow downward to a single low point. Therefore, every low point has a basin, although some basins are very small. Locations of height 9 do not count as being in any basin, and all other locations will always be part of exactly one basin.
+
+// The size of a basin is the number of locations within the basin, including the low point. The example above has four basins.
+
+// The top-left basin, size 3:
+
+// 2199943210
+// 3987894921
+// 9856789892
+// 8767896789
+// 9899965678
+// The top-right basin, size 9:
+
+// 2199943210
+// 3987894921
+// 9856789892
+// 8767896789
+// 9899965678
+// The middle basin, size 14:
+
+// 2199943210
+// 3987894921
+// 9856789892
+// 8767896789
+// 9899965678
+// The bottom-right basin, size 9:
+
+// 2199943210
+// 3987894921
+// 9856789892
+// 8767896789
+// 9899965678
+// Find the three largest basins and multiply their sizes together. In the above example, this is 9 * 14 * 9 = 1134.
+
+// What do you get if you multiply together the sizes of the three largest basins?
+
+const Point = struct {
+    x : i64,
+    y : i64,
+};
+
+fn find_basin_size(row: i64, col: i64, nums: std.ArrayList([]u8), already_seen: *std.AutoHashMap(Point, bool)) u64 {
+    if (col < 0 or row < 0) {
+        return 0;
+    }
+
+    var r = @intCast(usize, row);
+    if (row >= nums.items.len or col >= nums.items[r].len) {
+        return 0;
+    }
+
+    var c = @intCast(usize, col);
+    var x = nums.items[r][c];
+    var saw = already_seen.contains(Point{ .x = row, .y = col });
+    if (x == 9 or saw) {
+        return 0;
+    }
+
+    already_seen.put(Point{ .x = row, .y = col }, true) catch unreachable;
+    var size = find_basin_size(row + 1, col, nums, already_seen);
+    size +=  find_basin_size(row - 1, col, nums, already_seen);
+    size +=  find_basin_size(row, col + 1, nums, already_seen);
+    size +=  find_basin_size(row, col - 1, nums, already_seen);
+    return size + 1;
+}
+
+fn part2(nums: std.ArrayList([]u8)) !u64 {
+    var already_seen = std.AutoHashMap(Point, bool).init(std.testing.allocator);
+    defer already_seen.deinit();
+
+    var basin = std.ArrayList(u64).init(std.testing.allocator);
+    defer basin.deinit();
+
+    var row : i64 = 0;
+    while (row < nums.items.len) : (row += 1) {
+        var col : i64 = 0;
+        var r = @intCast(usize, row);
+        while (col < nums.items[r].len) : (col += 1) {
+            var size = find_basin_size(row, col, nums, &already_seen);
+            if (size > 0) {
+                try basin.append(size);
+            }
+        }
+    }
+
+    var basins = basin.toOwnedSlice();
+
+    std.sort.sort(u64, basins, {}, comptime std.sort.desc(u64));
+    return basins[0] * basins[1] * basins[2];
 }
