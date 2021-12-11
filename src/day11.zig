@@ -365,6 +365,87 @@ fn part1() !u64 {
     return flashes;
 }
 
+// --- Part Two ---
+// It seems like the individual flashes aren't bright enough to navigate. However, you might have a better option: the flashes seem to be synchronizing!
+
+// In the example above, the first time all octopuses flash simultaneously is step 195:
+
+// After step 193:
+// 5877777777
+// 8877777777
+// 7777777777
+// 7777777777
+// 7777777777
+// 7777777777
+// 7777777777
+// 7777777777
+// 7777777777
+// 7777777777
+
+// After step 194:
+// 6988888888
+// 9988888888
+// 8888888888
+// 8888888888
+// 8888888888
+// 8888888888
+// 8888888888
+// 8888888888
+// 8888888888
+// 8888888888
+
+// After step 195:
+// 0000000000
+// 0000000000
+// 0000000000
+// 0000000000
+// 0000000000
+// 0000000000
+// 0000000000
+// 0000000000
+// 0000000000
+// 0000000000
+// If you can calculate the exact moments when the octopuses will all flash simultaneously, you should be able to navigate through the cavern. What is the first step during which all octopuses flash?
+
 fn part2() !u64 {
+    var lines = std.mem.tokenize(input, "\n");
+    var octopus = std.ArrayList([]u8).init(std.testing.allocator);
+    defer octopus.deinit();    
+    while (lines.next()) | line | {
+        var row = std.ArrayList(u8).init(std.testing.allocator);
+        for (line) | ch | {
+            try row.append(ch - '0');
+        }
+        try octopus.append(row.toOwnedSlice());
+    }
+
+    var rep : u32 = 1;
+    while (true) : (rep += 1) {
+        var already_flashed = std.AutoHashMap(Point, bool).init(std.testing.allocator);
+        defer already_flashed.deinit();
+        var i : u32 = 0;
+        while (i < octopus.items.len) : (i += 1) {
+            var j : u32 = 0;
+            while (j < octopus.items[i].len) : (j += 1) {
+                var ignore = do_step(&octopus, &already_flashed, i, j);
+            }
+        }
+
+        if (already_flashed.count() == 100) {
+            return rep;
+        }
+
+        i = 0;
+        while (i < octopus.items.len) : (i += 1) {
+            var j : u32 = 0;
+            while (j < octopus.items[i].len) : (j += 1) {
+                var done = already_flashed.contains(Point{ .x = i, .y = j });
+                if (done) {
+                    octopus.items[i][j] = 0;
+                }
+            }
+        }
+    }
+    
     return 0;
 }
