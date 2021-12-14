@@ -149,7 +149,7 @@ pub fn solve() !void {
         names = cave_names.toOwnedSlice();
     }
 
-    std.log.info("Day12 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(names, edges, false), part2()});
+    std.log.info("Day12 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(names, edges), part2(names, edges)});
 }
 
 const Walk = struct {
@@ -157,11 +157,11 @@ const Walk = struct {
     names: []const []const u8,
     edges: []const Edge,
 
-    fn countPaths(self: *@This(), id: u8, allow_revisit: bool) usize {
+    fn countPaths(self: *@This(), id: u8, revisit: bool) usize {
         if (id == 1) return 1; // id of end
         var is_set = false;
         if (self.already_hit.isSet(id)) {
-            if (!allow_revisit or id == 0) return 0;
+            if (!revisit or id == 0) return 0;
             is_set = true;
         } else if (self.names[id][0] >= 'a') {
             self.already_hit.set(id);
@@ -172,22 +172,73 @@ const Walk = struct {
             const n = if (edge.a == id) edge.b
             else if (edge.b == id) edge.a
             else continue;
-            paths += self.countPaths(n, allow_revisit);
+            paths += self.countPaths(n, revisit and !is_set);
         }
         return paths;
     }
 };
 
-fn part1(names: []const []const u8, edges: []const Edge, in_allow_revisit: bool) !u64 {
+fn part1(names: []const []const u8, edges: []const Edge) !u64 {
     var walk = Walk{
         .edges = edges,
         .names = names,
         .already_hit = try std.DynamicBitSet.initEmpty(names.len, std.testing.allocator),
     };
     defer walk.already_hit.deinit();
-    return walk.countPaths(0, in_allow_revisit);
+    return walk.countPaths(0, false);
 }
 
-fn part2() !u64 {
-    return 0;
+// --- Part Two ---
+// After reviewing the available paths, you realize you might have time to visit a single small cave twice. Specifically, big caves can be visited any number of times, a single small cave can be visited at most twice, and the remaining small caves can be visited at most once. However, the caves named start and end can only be visited exactly once each: once you leave the start cave, you may not return to it, and once you reach the end cave, the path must end immediately.
+
+// Now, the 36 possible paths through the first example above are:
+
+// start,A,b,A,b,A,c,A,end
+// start,A,b,A,b,A,end
+// start,A,b,A,b,end
+// start,A,b,A,c,A,b,A,end
+// start,A,b,A,c,A,b,end
+// start,A,b,A,c,A,c,A,end
+// start,A,b,A,c,A,end
+// start,A,b,A,end
+// start,A,b,d,b,A,c,A,end
+// start,A,b,d,b,A,end
+// start,A,b,d,b,end
+// start,A,b,end
+// start,A,c,A,b,A,b,A,end
+// start,A,c,A,b,A,b,end
+// start,A,c,A,b,A,c,A,end
+// start,A,c,A,b,A,end
+// start,A,c,A,b,d,b,A,end
+// start,A,c,A,b,d,b,end
+// start,A,c,A,b,end
+// start,A,c,A,c,A,b,A,end
+// start,A,c,A,c,A,b,end
+// start,A,c,A,c,A,end
+// start,A,c,A,end
+// start,A,end
+// start,b,A,b,A,c,A,end
+// start,b,A,b,A,end
+// start,b,A,b,end
+// start,b,A,c,A,b,A,end
+// start,b,A,c,A,b,end
+// start,b,A,c,A,c,A,end
+// start,b,A,c,A,end
+// start,b,A,end
+// start,b,d,b,A,c,A,end
+// start,b,d,b,A,end
+// start,b,d,b,end
+// start,b,end
+// The slightly larger example above now has 103 paths through it, and the even larger example now has 3509 paths through it.
+
+// Given these new rules, how many paths through this cave system are there?
+
+fn part2(names: []const []const u8, edges: []const Edge) !u64 {
+   var walk = Walk{
+        .edges = edges,
+        .names = names,
+        .already_hit = try std.DynamicBitSet.initEmpty(names.len, std.testing.allocator),
+    };
+    defer walk.already_hit.deinit();
+    return walk.countPaths(0, true);
 }
