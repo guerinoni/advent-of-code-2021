@@ -48,7 +48,6 @@ const VentLine = struct {
     end: Point,
 };
 
-
 const VentMap = struct {
     map: std.AutoHashMap(Point, i64) = std.AutoHashMap(Point, i64).init(std.testing.allocator),
     overlaps: u32 = 0,
