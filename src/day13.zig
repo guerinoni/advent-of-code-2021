@@ -143,7 +143,8 @@ pub fn solve() !void {
     var f = folds.toOwnedSlice();
 
 
-    std.log.info("Day13 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(f[0..1], d), part2()});
+    std.log.info("Day13 \n\tpart 1 -> {}\n\tpart 2 -> (ascii art)", .{part1(f[0..1], d)});
+    var _ignored = try part2(f, d);
 }
 
 fn part1(folds: []Fold, dots: []Point) !u64 {
@@ -162,6 +163,49 @@ fn part1(folds: []Fold, dots: []Point) !u64 {
     return visible.count();
 }
 
-fn part2() !u64 {
+// --- Part Two ---
+// Finish folding the transparent paper according to the instructions. The manual says the code is always eight capital letters.
+
+// What code do you use to activate the infrared thermal imaging camera system?
+
+fn part2(folds: []Fold, dots: []Point) !u64 {
+    for (folds) | fold | {
+        for (dots) | *dot | {
+            switch (fold) {
+                .x => |at| dot.x = std.math.min(2*at - dot.x, dot.x),
+                .y => |at| dot.y = std.math.min(2*at - dot.y, dot.y)
+            }
+        }
+    }
+
+    var max_x : u32 = 0;
+    var max_y : u32 = 0;
+    for (dots) |dot| {
+        if (dot.x > max_x) {
+            max_x = dot.x;
+        }
+
+        if (dot.y > max_y) {
+            max_y = dot.y;
+        }
+    }
+
+    var col : u64 = 0;
+    while (col <= max_y) : (col += 1) {
+        var row : u64 = 0;
+        while (row <= max_x) : (row += 1) {
+            var found = false;
+            for (dots) |dot| {
+                if (dot.x == row and dot.y == col) {
+                    std.debug.print("#", .{});
+                    found = true;
+                    break;
+                }
+            }
+            if (found == false) std.debug.print(" ", .{});
+        }
+        std.debug.print("\n", .{});
+    }
+
     return 0;
 }
