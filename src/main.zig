@@ -12,6 +12,7 @@ const day10 = @import("day10.zig");
 const day11 = @import("day11.zig");
 const day12 = @import("day12.zig");
 const day13 = @import("day13.zig");
+const day14 = @import("day14.zig");
 
 pub fn main() !void {
     std.log.info("Welcome to Advent of Code 2021", .{});
@@ -29,4 +30,5 @@ pub fn main() !void {
     try day11.solve();
     try day12.solve();
     try day13.solve();
+    try day14.solve();
 }
