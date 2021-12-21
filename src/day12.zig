@@ -120,9 +120,9 @@ pub fn solve() !void {
         // 2 because 0=start 1=end
         var next_cave_id: u8 = 2;
 
-        var lines = std.mem.tokenize(input, "\r\n");
+        var lines = std.mem.tokenize(u8, input, "\r\n");
         while (lines.next()) | line | {
-            var parts = std.mem.split(line, "-");
+            var parts = std.mem.split(u8, line, "-");
             const a = parts.next().?;
             const b = parts.next().?;
 
@@ -182,7 +182,7 @@ fn part1(names: []const []const u8, edges: []const Edge) !u64 {
     var walk = Walk{
         .edges = edges,
         .names = names,
-        .already_hit = try std.DynamicBitSet.initEmpty(names.len, std.testing.allocator),
+        .already_hit = try std.DynamicBitSet.initEmpty(std.testing.allocator, names.len),
     };
     defer walk.already_hit.deinit();
     return walk.countPaths(0, false);
@@ -237,7 +237,7 @@ fn part2(names: []const []const u8, edges: []const Edge) !u64 {
    var walk = Walk{
         .edges = edges,
         .names = names,
-        .already_hit = try std.DynamicBitSet.initEmpty(names.len, std.testing.allocator),
+        .already_hit = try std.DynamicBitSet.initEmpty(std.testing.allocator, names.len),
     };
     defer walk.already_hit.deinit();
     return walk.countPaths(0, true);

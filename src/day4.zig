@@ -63,10 +63,10 @@ pub fn solve() !void {
 }
 
 fn part1() !u32 {
-    var lines = std.mem.split(input, "\n\n");
+    var lines = std.mem.split(u8, input, "\n\n");
 
     var bingo_nums = std.ArrayList(u8).init(std.testing.allocator);
-    var bingo_line = std.mem.tokenize(lines.next().?, ",");
+    var bingo_line = std.mem.tokenize(u8, lines.next().?, ",");
 
     while (bingo_line.next()) |bingo_num| {
         try bingo_nums.append(try std.fmt.parseInt(u8, bingo_num, 10));
@@ -78,7 +78,7 @@ fn part1() !u32 {
     var board_finished = std.ArrayList(bool).init(std.testing.allocator);
 
     while (lines.next()) |board_line| {
-        var board_nums = std.mem.tokenize(board_line, " \n");
+        var board_nums = std.mem.tokenize(u8, board_line, " \n");
         var board: [25]u8 = undefined;
         for (board) |*num| {
             num.* = try std.fmt.parseInt(u8, board_nums.next().?, 10);
@@ -145,10 +145,10 @@ fn calculateBoardSum(board: [25]u8, board_total: u32) u32 {
 // Figure out which board will win last. Once it wins, what would its final score be?
 
 fn part2() !u32 {
-    var lines = std.mem.split(input, "\n\n");
+    var lines = std.mem.split(u8, input, "\n\n");
 
     var bingo_nums = std.ArrayList(u8).init(std.testing.allocator);
-    var bingo_line = std.mem.tokenize(lines.next().?, ",");
+    var bingo_line = std.mem.tokenize(u8, lines.next().?, ",");
 
     while (bingo_line.next()) |bingo_num| {
         try bingo_nums.append(try std.fmt.parseInt(u8, bingo_num, 10));
@@ -160,7 +160,7 @@ fn part2() !u32 {
     var board_finished = std.ArrayList(bool).init(std.testing.allocator);
 
     while (lines.next()) |board_line| {
-        var board_nums = std.mem.tokenize(board_line, " \n");
+        var board_nums = std.mem.tokenize(u8, board_line, " \n");
         var board: [25]u8 = undefined;
         for (board) |*num| {
             num.* = try std.fmt.parseInt(u8, board_nums.next().?, 10);

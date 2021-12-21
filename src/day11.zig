@@ -326,7 +326,7 @@ fn do_step(octopus: *std.ArrayList([]u8), already_flashed: *std.AutoHashMap(Poin
 }
 
 fn part1() !u64 {
-    var lines = std.mem.tokenize(input, "\n");
+    var lines = std.mem.tokenize(u8, input, "\n");
     var octopus = std.ArrayList([]u8).init(std.testing.allocator);
     defer octopus.deinit();    
     while (lines.next()) | line | {
@@ -408,7 +408,7 @@ fn part1() !u64 {
 // If you can calculate the exact moments when the octopuses will all flash simultaneously, you should be able to navigate through the cavern. What is the first step during which all octopuses flash?
 
 fn part2() !u64 {
-    var lines = std.mem.tokenize(input, "\n");
+    var lines = std.mem.tokenize(u8, input, "\n");
     var octopus = std.ArrayList([]u8).init(std.testing.allocator);
     defer octopus.deinit();    
     while (lines.next()) | line | {
@@ -427,7 +427,8 @@ fn part2() !u64 {
         while (i < octopus.items.len) : (i += 1) {
             var j : u32 = 0;
             while (j < octopus.items[i].len) : (j += 1) {
-                var ignore = do_step(&octopus, &already_flashed, i, j);
+                var a = do_step(&octopus, &already_flashed, i, j);
+                _ = a;
             }
         }
 

@@ -75,13 +75,14 @@ pub fn solve() !void {
 }
 
 fn part1() !u64 {
-    var lines = std.mem.tokenize(input, "\r\n");
+    var lines = std.mem.tokenize(u8, input, "\r\n");
     var easy_digits: u64 = 0;
     while (lines.next()) |line| {
-        var split_line = std.mem.split(line, " | ");
-        var patterns_str = split_line.next();
+        var split_line = std.mem.split(u8, line, " | ");
+        var x = split_line.next();
+        _ = x;
         var output_values = split_line.next();
-        var digits = std.mem.split(output_values.?, " ");
+        var digits = std.mem.split(u8, output_values.?, " ");
         while (digits.next()) |digit_str| {
             switch (digit_str.len) {
                 2, 3, 4, 7 => {easy_digits += 1;},
@@ -151,9 +152,9 @@ fn segment_mask(str: []const u8) u7 {
 
 fn part2() !i64 {
     var sum : i64 = 0;
-    var lines = std.mem.tokenize(input, "\r\n");
+    var lines = std.mem.tokenize(u8, input, "\r\n");
     while (lines.next()) | line | {
-        var parts = std.mem.tokenize(line, " |");
+        var parts = std.mem.tokenize(u8, line, " |");
         var four: u7 = undefined;
         var seven: u7 = undefined;
         var i: usize = 0;

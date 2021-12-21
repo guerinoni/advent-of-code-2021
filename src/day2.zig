@@ -38,12 +38,12 @@ pub fn solve() !void {
 }
 
 fn part1() !u32 {
-    var lines = std.mem.tokenize(input, "\n");
+    var lines = std.mem.tokenize(u8, input, "\n");
     var forward: u32 = 0;
     var depth: u32 = 0;
 
     while (lines.next()) |line| {
-        var direction_value = std.mem.tokenize(line, " ");
+        var direction_value = std.mem.tokenize(u8,line, " ");
         var direction = direction_value.next().?;
         var value_str = direction_value.next().?;
         var value = try std.fmt.parseInt(u32,value_str, 10);
@@ -85,13 +85,13 @@ fn part1() !u32 {
 // Using this new interpretation of the commands, calculate the horizontal position and depth you would have after following the planned course. What do you get if you multiply your final horizontal position by your final depth?
 
 fn part2() !u32 {
-    var lines = std.mem.tokenize(input, "\n");
+    var lines = std.mem.tokenize(u8,input, "\n");
     var horizontal: u32 = 0;
     var depth: u32 = 0;
     var aim: u32 = 0;
 
     while (lines.next()) |line| {
-        var direction_value = std.mem.tokenize(line, " ");
+        var direction_value = std.mem.tokenize(u8, line, " ");
         var direction = direction_value.next().?;
         var value_str = direction_value.next().?;
         var value = try std.fmt.parseInt(u32,value_str, 10);

@@ -109,13 +109,13 @@ const Point = struct { x: u32, y: u32 };
 const Fold = union(enum) { x: u32, y: u32 };
 
 pub fn solve() !void {
-    var input_parts = std.mem.split(input, "\n\n");
+    var input_parts = std.mem.split(u8, input, "\n\n");
 
     var points = std.ArrayList(Point).init(std.testing.allocator);
     defer points.deinit();
-    var dots = std.mem.split(input_parts.next().?, "\n");
+    var dots = std.mem.split(u8, input_parts.next().?, "\n");
     while (dots.next()) | line | {
-        var parts = std.mem.split(line, ",");
+        var parts = std.mem.split(u8, line, ",");
         const dot = Point {
             .x = try std.fmt.parseInt(u16, parts.next().?, 10),
             .y = try std.fmt.parseInt(u16, parts.next().?, 10),
@@ -126,7 +126,7 @@ pub fn solve() !void {
 
     var folds = std.ArrayList(Fold).init(std.testing.allocator);
     defer folds.deinit();
-    var lines = std.mem.split(input_parts.next().?, "\n");
+    var lines = std.mem.split(u8, input_parts.next().?, "\n");
     while (lines.next()) | line | {
         const eq = std.mem.indexOf(u8, line, "=").?;
         const num = try std.fmt.parseInt(u32, line[eq + 1..], 10);
@@ -144,7 +144,7 @@ pub fn solve() !void {
 
 
     std.log.info("Day13 \n\tpart 1 -> {}\n\tpart 2 -> (ascii art)", .{part1(f[0..1], d)});
-    var _ignored = try part2(f, d);
+    try part2(f, d);
 }
 
 fn part1(folds: []Fold, dots: []Point) !u64 {
@@ -168,7 +168,7 @@ fn part1(folds: []Fold, dots: []Point) !u64 {
 
 // What code do you use to activate the infrared thermal imaging camera system?
 
-fn part2(folds: []Fold, dots: []Point) !u64 {
+fn part2(folds: []Fold, dots: []Point) !void {
     for (folds) | fold | {
         for (dots) | *dot | {
             switch (fold) {
@@ -206,6 +206,4 @@ fn part2(folds: []Fold, dots: []Point) !u64 {
         }
         std.debug.print("\n", .{});
     }
-
-    return 0;
 }

@@ -78,7 +78,7 @@ fn score_of(close: u8) !u64 {
 }
 
 fn part1() !u64 {
-    var lines = std.mem.tokenize(input, "\n");
+    var lines = std.mem.tokenize(u8, input, "\n");
     var total : u64 = 0;
     var stack = std.ArrayList(u8).init(std.testing.allocator);
     defer stack.deinit();    
@@ -149,7 +149,7 @@ fn score_of_(close: u8) !u64 {
 }
 
 fn part2() !u64 {
-    var lines = std.mem.tokenize(input, "\n");
+    var lines = std.mem.tokenize(u8, input, "\n");
     var stack = std.ArrayList(u8).init(std.testing.allocator);
     defer stack.deinit();
 

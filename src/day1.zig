@@ -46,7 +46,7 @@ const std = @import("std");
 const input = @embedFile("../input/day1.txt");
 
 pub fn solve() !void {
-    var lines = std.mem.tokenize(input, "\n");
+    var lines = std.mem.tokenize(u8, input, "\n");
     var nums = std.ArrayList(u32).init(std.testing.allocator);
     defer nums.deinit();
     while (lines.next()) |line| {

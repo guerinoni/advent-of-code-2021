@@ -40,7 +40,7 @@ pub fn solve() !void {
 }
 
 fn part1() !u32 {
-    var lines = std.mem.tokenize(input, "\n");
+    var lines = std.mem.tokenize(u8, input, "\n");
     var nums = std.ArrayList(u32).init(std.testing.allocator);
     defer nums.deinit();
     while (lines.next()) |line| {
@@ -108,7 +108,7 @@ fn get_bit_dominant(nums: std.ArrayList(u32), weight: u32) !u32 {
 // Use the binary numbers in your diagnostic report to calculate the oxygen generator rating and CO2 scrubber rating, then multiply them together. What is the life support rating of the submarine? (Be sure to represent your answer in decimal, not binary.)
 
 fn part2() !u32 {
-    var lines = std.mem.tokenize(input, "\n");
+    var lines = std.mem.tokenize(u8, input, "\n");
     var nums = std.ArrayList(u32).init(std.testing.allocator);
     defer nums.deinit();
     while (lines.next()) |line| {

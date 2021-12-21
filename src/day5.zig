@@ -69,10 +69,10 @@ pub fn solve() !void {
     var vents = blk: {
         var vents = std.ArrayList(VentLine).init(std.testing.allocator);
         defer vents.deinit();
-        var lines = std.mem.tokenize(input, "\r\n");
+        var lines = std.mem.tokenize(u8, input, "\r\n");
         while (lines.next()) |line| {
             if (line.len == 0) {continue;}
-            var parts = std.mem.tokenize(line, " ,->");
+            var parts = std.mem.tokenize(u8,line, " ,->");
             vents.append(.{
                 .start = .{
                     .x = try std.fmt.parseInt(i64, parts.next().?, 10),
