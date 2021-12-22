@@ -51,83 +51,119 @@ const std = @import("std");
 
 const input = @embedFile("../input/day14.txt");
 
-const Rule = struct {
-    pair: []const u8,
-    insert: u8,
-};
-
 pub fn solve() !void {
-    var list = std.ArrayList([]const u8).init(std.testing.allocator);
-    defer list.deinit();
-    var lines = std.mem.split(input, "\n");
-    while (lines.next()) | line | {
-        try list.append(line);
-    }
-
-    var rulesStr = list.toOwnedSlice();
-    var polymer = std.ArrayList(u8).init(std.testing.allocator);
-    defer polymer.deinit();
-
-    const template = rulesStr[0];
-    for (template) | c | {
-        try polymer.append(c);
-    }
-
-    var rules = std.ArrayList(Rule).init(std.testing.allocator);
-    defer rules.deinit();
-    for (rulesStr[2..]) | line | {
-        var split = std.mem.split(line, " -> ");
-        var p = split.next().?;
-        var i = split.next().?[0];
-        var r = Rule { .pair = p, .insert = i };
-        try rules.append(r);
-    }
-
-    std.log.info("Day14 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(&polymer, &rules), part2()});
+    std.log.info("Day14 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(), part2()});
 }
 
-fn part1(polymer: *std.ArrayList(u8), rules: *std.ArrayList(Rule)) !u64 {
+const u8x2 = std.meta.Vector(2, u8);
+
+// "AA" => 0, "ZZ" => 26*26-1
+fn hash(val: *const [2]u8) u16 {
+    var pair = @as(u8x2, val.*);
+    pair -= u8x2{ 'A', 'A' };
+    return @as(u16, pair[0]) * 26 + pair[1];
+}
+
+// 0 => "AA", 675 => "ZZ"
+fn unhash(val: u16) [2]u8 {
+    return u8x2{ @truncate(u8, val / 26), @truncate(u8, val % 26) } + u8x2{ 'A', 'A' };
+}
+
+fn part1() !u64 {
+    const in = comptime std.mem.trim(u8, input, &std.ascii.spaces);
+    var data = std.mem.split(u8, in, "\n");
+    var counts = [1]usize{0} ** (26 * 26);
+    const template = data.next().?;
+    for (template[0 .. template.len - 1]) |_, i|
+        counts[hash(template[i .. i + 2][0..2])] += 1;
+    _ = data.next().?;
+    var rules = [1]u8{0} ** (26 * 26);
+    while (data.next()) |line|
+        rules[hash(line[0..2])] = line[6];
+
     var step: usize = 0;
     while (step < 10) : (step += 1) {
-        var build = std.ArrayList(u8).init(std.testing.allocator);
-        defer build.deinit();
+        var new_counts = [1]usize{0} ** (26 * 26);
+        for (counts) |count, i| {
+            if (count == 0) continue;
+            const pair = unhash(@intCast(u16, i));
+            const result = rules[i];
+            const left: [2]u8 = .{ pair[0], result };
+            const right: [2]u8 = .{ result, pair[1] };
+            new_counts[hash(&left)] += count;
+            new_counts[hash(&right)] += count;
+        }
 
-        var it: usize = 0;
-        while (it < polymer.items.len - 1) : (it += 1) {
-            try build.append(polymer.items[it]);
-            for (rules.items) | rule | {
-                if (std.mem.eql(u8, rule.pair, polymer.items[it .. it + 2])) {
-                    try build.append(rule.insert);
-                }
-            }
-        }
-        
-        try build.append(polymer.items[polymer.items.len - 1]);
-        polymer.clearAndFree();
-        for (build.items) |c| {
-            try polymer.append(c);
-        }
+        counts = new_counts;
     }
 
-    var counts = [_]?usize{null} ** 26;
-    var min: usize = std.math.maxInt(usize);
-    var max: usize = 0;
-    for (polymer.items) | c | {
-        if (counts[c - 'A']) |*count| {
-            count.* += 1;
-        } else counts[c - 'A'] = 1;
-    }
-    
-    for (counts) |c| {
-        if (c) |*count| {
-            if (count.* < min) min = count.*;
-            if (count.* > max) max = count.*;
+    if (step == 10) {
+        var char_counts = [1]usize{0} ** 26;
+        for (counts) |entry, i| {
+            const pair = unhash(@intCast(u16, i));
+            char_counts[pair[0] - 'A'] += entry;
         }
+        char_counts[template[template.len - 1] - 'A'] += 1;
+        std.sort.sort(usize, &char_counts, {}, comptime std.sort.desc(usize));
+
+        const max = char_counts[0];
+        const min = for (char_counts) |x, i| { if (char_counts[i + 1] == 0) break x; } else unreachable;
+        const answer = max - min;
+        return answer;
     }
 
-    return max-min;
+    return 0;
 }
 
+// --- Part Two ---
+// The resulting polymer isn't nearly strong enough to reinforce the submarine. You'll need to run more steps of the pair insertion process; a total of 40 steps should do it.
+
+// In the above example, the most common element is B (occurring 2192039569602 times) and the least common element is H (occurring 3849876073 times); subtracting these produces 2188189693529.
+
+// Apply 40 steps of pair insertion to the polymer template and find the most and least common elements in the result. What do you get if you take the quantity of the most common element and subtract the quantity of the least common element?
+
 fn part2() !u64 {
+    const in = comptime std.mem.trim(u8, input, &std.ascii.spaces);
+    var data = std.mem.split(u8, in, "\n");
+    var counts = [1]usize{0} ** (26 * 26);
+    const template = data.next().?;
+    for (template[0 .. template.len - 1]) |_, i|
+        counts[hash(template[i .. i + 2][0..2])] += 1;
+    _ = data.next().?;
+    var rules = [1]u8{0} ** (26 * 26);
+    while (data.next()) |line|
+        rules[hash(line[0..2])] = line[6];
+
+    var step: usize = 0;
+    while (step < 40) : (step += 1) {
+        var new_counts = [1]usize{0} ** (26 * 26);
+        for (counts) |count, i| {
+            if (count == 0) continue;
+            const pair = unhash(@intCast(u16, i));
+            const result = rules[i];
+            const left: [2]u8 = .{ pair[0], result };
+            const right: [2]u8 = .{ result, pair[1] };
+            new_counts[hash(&left)] += count;
+            new_counts[hash(&right)] += count;
+        }
+
+        counts = new_counts;
+    }
+
+    if (step == 40) {
+        var char_counts = [1]usize{0} ** 26;
+        for (counts) |entry, i| {
+            const pair = unhash(@intCast(u16, i));
+            char_counts[pair[0] - 'A'] += entry;
+        }
+        char_counts[template[template.len - 1] - 'A'] += 1;
+        std.sort.sort(usize, &char_counts, {}, comptime std.sort.desc(usize));
+
+        const max = char_counts[0];
+        const min = for (char_counts) |x, i| { if (char_counts[i + 1] == 0) break x; } else unreachable;
+        const answer = max - min;
+        return answer;
+    }
+
     return 0;
 }
