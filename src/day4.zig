@@ -68,8 +68,8 @@ fn part1() !u32 {
     var bingo_nums = std.ArrayList(u8).init(std.testing.allocator);
     var bingo_line = std.mem.tokenize(u8, lines.next().?, ",");
 
-    while (bingo_line.next()) |bingo_num| {
-        try bingo_nums.append(try std.fmt.parseInt(u8, bingo_num, 10));
+    while (bingo_line.next()) | line | {
+        try bingo_nums.append(try std.fmt.parseInt(u8, line, 10));
     }
 
     var bingo_boards = std.ArrayList([5 * 5]u8).init(std.testing.allocator);
@@ -77,8 +77,8 @@ fn part1() !u32 {
     var board_totals = std.ArrayList(u32).init(std.testing.allocator);
     var board_finished = std.ArrayList(bool).init(std.testing.allocator);
 
-    while (lines.next()) |board_line| {
-        var board_nums = std.mem.tokenize(u8, board_line, " \n");
+    while (lines.next()) | line | {
+        var board_nums = std.mem.tokenize(u8, line, " \n");
         var board: [25]u8 = undefined;
         for (board) |*num| {
             num.* = try std.fmt.parseInt(u8, board_nums.next().?, 10);
@@ -91,13 +91,13 @@ fn part1() !u32 {
 
     var ret: u32 = 0;
     var boards_finished: u32 = 0;
-    stop_bingo: for (bingo_nums.items) |bingo_num| {
-        for (bingo_boards.items) |board, i| {
+    stop_bingo: for (bingo_nums.items) | bingo_num | {
+        for (bingo_boards.items) | board, i | {
             if (board_finished.items[i]) {
                 continue;
             }
 
-            for (board) |board_num, num_i| {
+            for (board) | board_num, num_i | {
                 if (board_num == bingo_num) {
                     board_totals.items[i] += bingo_num;
                     board_tallys.items[i][num_i / 5] += 1;
@@ -126,7 +126,7 @@ fn part1() !u32 {
 fn calculateBoardSum(board: [25]u8, board_total: u32) u32 {
     const sum = blk: {
         var acc: u32 = 0;
-        for (board) |num| {
+        for (board) | num | {
             acc += num;
         }
         acc -= board_total;
@@ -150,8 +150,8 @@ fn part2() !u32 {
     var bingo_nums = std.ArrayList(u8).init(std.testing.allocator);
     var bingo_line = std.mem.tokenize(u8, lines.next().?, ",");
 
-    while (bingo_line.next()) |bingo_num| {
-        try bingo_nums.append(try std.fmt.parseInt(u8, bingo_num, 10));
+    while (bingo_line.next()) | line | {
+        try bingo_nums.append(try std.fmt.parseInt(u8, line, 10));
     }
 
     var bingo_boards = std.ArrayList([5 * 5]u8).init(std.testing.allocator);
@@ -159,8 +159,8 @@ fn part2() !u32 {
     var board_totals = std.ArrayList(u32).init(std.testing.allocator);
     var board_finished = std.ArrayList(bool).init(std.testing.allocator);
 
-    while (lines.next()) |board_line| {
-        var board_nums = std.mem.tokenize(u8, board_line, " \n");
+    while (lines.next()) | line | {
+        var board_nums = std.mem.tokenize(u8, line, " \n");
         var board: [25]u8 = undefined;
         for (board) |*num| {
             num.* = try std.fmt.parseInt(u8, board_nums.next().?, 10);

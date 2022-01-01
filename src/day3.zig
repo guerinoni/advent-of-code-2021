@@ -36,17 +36,17 @@ const std = @import("std");
 const input = @embedFile("../input/day3.txt");
 
 pub fn solve() !void {
-    std.log.info("Day3 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(), part2()});
-}
-
-fn part1() !u32 {
     var lines = std.mem.tokenize(u8, input, "\n");
     var nums = std.ArrayList(u32).init(std.testing.allocator);
     defer nums.deinit();
-    while (lines.next()) |line| {
+    while (lines.next()) | line | {
         try nums.append(try std.fmt.parseInt(u32, line, 2));
     }
 
+    std.log.info("Day3 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(nums), part2(nums)});
+}
+
+fn part1(nums: std.ArrayList(u32)) !u32 {
     var i : u32 = 2048;
     var gamma : u32 = 0;
     var epsilon : u32 = 0;
@@ -107,14 +107,7 @@ fn get_bit_dominant(nums: std.ArrayList(u32), weight: u32) !u32 {
 
 // Use the binary numbers in your diagnostic report to calculate the oxygen generator rating and CO2 scrubber rating, then multiply them together. What is the life support rating of the submarine? (Be sure to represent your answer in decimal, not binary.)
 
-fn part2() !u32 {
-    var lines = std.mem.tokenize(u8, input, "\n");
-    var nums = std.ArrayList(u32).init(std.testing.allocator);
-    defer nums.deinit();
-    while (lines.next()) |line| {
-        try nums.append(try std.fmt.parseInt(u32, line, 2));
-    }
-
+fn part2(nums: std.ArrayList(u32)) !u32 {
     var tmp = nums;
     var i : u32 = 2048;
     while (i >= 1) : (i /= 2) {
@@ -126,14 +119,15 @@ fn part2() !u32 {
     var oxygen_generator = tmp.items[0];
 
     i = 2048;
+    var nn = nums;
     while (i >= 1) : (i /= 2) {
-        nums = try get_numbers_with_fewest_common_bit(nums, i);
-        if (nums.items.len == 1) {
+        nn = try get_numbers_with_fewest_common_bit(nn, i);
+        if (nn.items.len == 1) {
             break;
         }
     }
 
-    var co2_scrubber : u32 = nums.items[0];
+    var co2_scrubber : u32 = nn.items[0];
 
     return oxygen_generator * co2_scrubber;
 }
