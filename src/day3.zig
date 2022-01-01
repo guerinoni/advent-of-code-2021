@@ -39,17 +39,17 @@ pub fn solve() !void {
     var lines = std.mem.tokenize(u8, input, "\n");
     var nums = std.ArrayList(u32).init(std.testing.allocator);
     defer nums.deinit();
-    while (lines.next()) | line | {
+    while (lines.next()) |line| {
         try nums.append(try std.fmt.parseInt(u32, line, 2));
     }
 
-    std.log.info("Day3 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(nums), part2(nums)});
+    std.log.info("Day3 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(nums), part2(nums) });
 }
 
 fn part1(nums: std.ArrayList(u32)) !u32 {
-    var i : u32 = 2048;
-    var gamma : u32 = 0;
-    var epsilon : u32 = 0;
+    var i: u32 = 2048;
+    var gamma: u32 = 0;
+    var epsilon: u32 = 0;
     while (i >= 1) : (i /= 2) {
         var bit = try get_bit_dominant(nums, i);
         gamma += bit;
@@ -62,8 +62,8 @@ fn part1(nums: std.ArrayList(u32)) !u32 {
 }
 
 fn get_bit_dominant(nums: std.ArrayList(u32), weight: u32) !u32 {
-    var counter_bit : u32 = 0;
-    var i : u32 = 0;
+    var counter_bit: u32 = 0;
+    var i: u32 = 0;
     while (i < nums.items.len) : (i += 1) {
         if (nums.items[i] & weight != 0) {
             counter_bit += 1;
@@ -109,7 +109,7 @@ fn get_bit_dominant(nums: std.ArrayList(u32), weight: u32) !u32 {
 
 fn part2(nums: std.ArrayList(u32)) !u32 {
     var tmp = nums;
-    var i : u32 = 2048;
+    var i: u32 = 2048;
     while (i >= 1) : (i /= 2) {
         tmp = try get_numbers_with_common_bit(tmp, i);
         if (tmp.items.len == 1) {
@@ -127,7 +127,7 @@ fn part2(nums: std.ArrayList(u32)) !u32 {
         }
     }
 
-    var co2_scrubber : u32 = nn.items[0];
+    var co2_scrubber: u32 = nn.items[0];
 
     return oxygen_generator * co2_scrubber;
 }
@@ -135,7 +135,7 @@ fn part2(nums: std.ArrayList(u32)) !u32 {
 fn get_numbers_with_common_bit(nums: std.ArrayList(u32), weight: u32) !std.ArrayList(u32) {
     var nums_with_0 = std.ArrayList(u32).init(std.testing.allocator);
     var nums_with_1 = std.ArrayList(u32).init(std.testing.allocator);
-    var i : u32 = 0;
+    var i: u32 = 0;
     while (i < nums.items.len) : (i += 1) {
         if (nums.items[i] & weight != 0) {
             try nums_with_1.append(nums.items[i]);
@@ -156,7 +156,7 @@ fn get_numbers_with_common_bit(nums: std.ArrayList(u32), weight: u32) !std.Array
 fn get_numbers_with_fewest_common_bit(nums: std.ArrayList(u32), weight: u32) !std.ArrayList(u32) {
     var nums_with_0 = std.ArrayList(u32).init(std.testing.allocator);
     var nums_with_1 = std.ArrayList(u32).init(std.testing.allocator);
-    var i : u32 = 0;
+    var i: u32 = 0;
     while (i < nums.items.len) : (i += 1) {
         if (nums.items[i] & weight != 0) {
             try nums_with_1.append(nums.items[i]);

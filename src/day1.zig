@@ -49,16 +49,16 @@ pub fn solve() !void {
     var lines = std.mem.tokenize(u8, input, "\n");
     var nums = std.ArrayList(u32).init(std.testing.allocator);
     defer nums.deinit();
-    while (lines.next()) | line | {
+    while (lines.next()) |line| {
         try nums.append(try std.fmt.parseInt(u32, line, 10));
     }
 
-    std.log.info("Day1 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(nums), part2(nums)});
+    std.log.info("Day1 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(nums), part2(nums) });
 }
 
 fn part1(nums: std.ArrayList(u32)) !u32 {
-    var i : u32 = 0;
-    var increases : u32 = 0;
+    var i: u32 = 0;
+    var increases: u32 = 0;
     while (i < nums.items.len - 1) : (i += 1) {
         if (nums.items[i] < nums.items[i + 1]) {
             increases += 1;
@@ -73,13 +73,13 @@ fn part1(nums: std.ArrayList(u32)) !u32 {
 
 // Instead, consider sums of a three-measurement sliding window. Again considering the above example:
 
-// 199  A      
-// 200  A B    
-// 208  A B C  
+// 199  A
+// 200  A B
+// 208  A B C
 // 210    B C D
 // 200  E   C D
 // 207  E F   D
-// 240  E F G  
+// 240  E F G
 // 269    F G H
 // 260      G H
 // 263        H
@@ -101,11 +101,12 @@ fn part1(nums: std.ArrayList(u32)) !u32 {
 
 // Consider sums of a three-measurement sliding window. How many sums are larger than the previous sum?
 
-
 fn part2(nums: std.ArrayList(u32)) !u32 {
-    var increases : u32 = 0;
-    for (nums.items[0..nums.items.len - 3]) | num, i | {
-        if (num < nums.items[i + 3]) { increases += 1; }
+    var increases: u32 = 0;
+    for (nums.items[0 .. nums.items.len - 3]) |num, i| {
+        if (num < nums.items[i + 3]) {
+            increases += 1;
+        }
     }
 
     return increases;

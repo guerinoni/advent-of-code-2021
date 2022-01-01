@@ -92,7 +92,6 @@
 // start-RW
 // How many paths through this cave system are there that visit small caves at most once?
 
-
 const std = @import("std");
 
 const input = @embedFile("../input/day12.txt");
@@ -121,7 +120,7 @@ pub fn solve() !void {
         var next_cave_id: u8 = 2;
 
         var lines = std.mem.tokenize(u8, input, "\r\n");
-        while (lines.next()) | line | {
+        while (lines.next()) |line| {
             var parts = std.mem.split(u8, line, "-");
             const a = parts.next().?;
             const b = parts.next().?;
@@ -144,12 +143,12 @@ pub fn solve() !void {
 
             try edges_l.append(.{ .a = a_id, .b = b_id });
         }
-        
+
         edges = edges_l.toOwnedSlice();
         names = cave_names.toOwnedSlice();
     }
 
-    std.log.info("Day12 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(names, edges), part2(names, edges)});
+    std.log.info("Day12 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(names, edges), part2(names, edges) });
 }
 
 const Walk = struct {
@@ -166,12 +165,12 @@ const Walk = struct {
         } else if (self.names[id][0] >= 'a') {
             self.already_hit.set(id);
         }
-        defer if (!is_set) { self.already_hit.unset(id); };
+        defer if (!is_set) {
+            self.already_hit.unset(id);
+        };
         var paths: usize = 0;
         for (self.edges) |edge| {
-            const n = if (edge.a == id) edge.b
-            else if (edge.b == id) edge.a
-            else continue;
+            const n = if (edge.a == id) edge.b else if (edge.b == id) edge.a else continue;
             paths += self.countPaths(n, revisit and !is_set);
         }
         return paths;
@@ -234,7 +233,7 @@ fn part1(names: []const []const u8, edges: []const Edge) !u64 {
 // Given these new rules, how many paths through this cave system are there?
 
 fn part2(names: []const []const u8, edges: []const Edge) !u64 {
-   var walk = Walk{
+    var walk = Walk{
         .edges = edges,
         .names = names,
         .already_hit = try std.DynamicBitSet.initEmpty(std.testing.allocator, names.len),

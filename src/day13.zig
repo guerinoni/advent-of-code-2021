@@ -114,9 +114,9 @@ pub fn solve() !void {
     var points = std.ArrayList(Point).init(std.testing.allocator);
     defer points.deinit();
     var dots = std.mem.split(u8, input_parts.next().?, "\n");
-    while (dots.next()) | line | {
+    while (dots.next()) |line| {
         var parts = std.mem.split(u8, line, ",");
-        const dot = Point {
+        const dot = Point{
             .x = try std.fmt.parseInt(u16, parts.next().?, 10),
             .y = try std.fmt.parseInt(u16, parts.next().?, 10),
         };
@@ -127,13 +127,13 @@ pub fn solve() !void {
     var folds = std.ArrayList(Fold).init(std.testing.allocator);
     defer folds.deinit();
     var lines = std.mem.split(u8, input_parts.next().?, "\n");
-    while (lines.next()) | line | {
+    while (lines.next()) |line| {
         const eq = std.mem.indexOf(u8, line, "=").?;
-        const num = try std.fmt.parseInt(u32, line[eq + 1..], 10);
+        const num = try std.fmt.parseInt(u32, line[eq + 1 ..], 10);
         var f = switch (line[eq - 1]) {
             'x' => Fold{ .x = num },
             'y' => Fold{ .y = num },
-            else => unreachable
+            else => unreachable,
         };
 
         try folds.append(f);
@@ -142,7 +142,6 @@ pub fn solve() !void {
     var d = points.toOwnedSlice();
     var f = folds.toOwnedSlice();
 
-
     std.log.info("Day13 \n\tpart 1 -> {}\n\tpart 2 -> (ascii art)", .{part1(f[0..1], d)});
     try part2(f, d);
 }
@@ -150,16 +149,16 @@ pub fn solve() !void {
 fn part1(folds: []Fold, dots: []Point) !u64 {
     var visible = std.AutoHashMap(Point, void).init(std.testing.allocator);
     defer visible.deinit();
-    for (folds) | fold | {
-        for (dots) | *dot | {
+    for (folds) |fold| {
+        for (dots) |*dot| {
             switch (fold) {
-                .x => |at| dot.x = std.math.min(2*at - dot.x, dot.x),
-                .y => |at| dot.y = std.math.min(2*at - dot.y, dot.y)
+                .x => |at| dot.x = std.math.min(2 * at - dot.x, dot.x),
+                .y => |at| dot.y = std.math.min(2 * at - dot.y, dot.y),
             }
         }
     }
 
-    for (dots) | dot | try visible.put(dot, {});
+    for (dots) |dot| try visible.put(dot, {});
     return visible.count();
 }
 
@@ -169,17 +168,17 @@ fn part1(folds: []Fold, dots: []Point) !u64 {
 // What code do you use to activate the infrared thermal imaging camera system?
 
 fn part2(folds: []Fold, dots: []Point) !void {
-    for (folds) | fold | {
-        for (dots) | *dot | {
+    for (folds) |fold| {
+        for (dots) |*dot| {
             switch (fold) {
-                .x => |at| dot.x = std.math.min(2*at - dot.x, dot.x),
-                .y => |at| dot.y = std.math.min(2*at - dot.y, dot.y)
+                .x => |at| dot.x = std.math.min(2 * at - dot.x, dot.x),
+                .y => |at| dot.y = std.math.min(2 * at - dot.y, dot.y),
             }
         }
     }
 
-    var max_x : u32 = 0;
-    var max_y : u32 = 0;
+    var max_x: u32 = 0;
+    var max_y: u32 = 0;
     for (dots) |dot| {
         if (dot.x > max_x) {
             max_x = dot.x;
@@ -190,9 +189,9 @@ fn part2(folds: []Fold, dots: []Point) !void {
         }
     }
 
-    var col : u64 = 0;
+    var col: u64 = 0;
     while (col <= max_y) : (col += 1) {
-        var row : u64 = 0;
+        var row: u64 = 0;
         while (row <= max_x) : (row += 1) {
             var found = false;
             for (dots) |dot| {

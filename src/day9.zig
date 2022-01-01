@@ -27,25 +27,25 @@ const input = @embedFile("../input/day9.txt");
 pub fn solve() !void {
     var lines = std.mem.tokenize(u8, input, "\n");
     var nums = std.ArrayList([]u8).init(std.testing.allocator);
-    defer nums.deinit();    
-    var row_len : u64 = 0;
-    while (lines.next()) | line | {
+    defer nums.deinit();
+    var row_len: u64 = 0;
+    while (lines.next()) |line| {
         row_len = line.len;
         var row = std.ArrayList(u8).init(std.testing.allocator);
-        for (line) | ch | {
+        for (line) |ch| {
             try row.append(ch - '0');
         }
         try nums.append(row.toOwnedSlice());
     }
 
-    std.log.info("Day9 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(nums), part2(nums)});
+    std.log.info("Day9 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(nums), part2(nums) });
 }
 
 fn part1(nums: std.ArrayList([]u8)) !u64 {
-    var row : u64 = 0;
-    var risk : u64 = 0;
+    var row: u64 = 0;
+    var risk: u64 = 0;
     while (row < nums.items.len) : (row += 1) {
-        var col : u64 = 0;
+        var col: u64 = 0;
         while (col < nums.items[row].len) : (col += 1) {
             var x = nums.items[row][col];
             var r = @intCast(i64, row);
@@ -123,8 +123,8 @@ fn part1(nums: std.ArrayList([]u8)) !u64 {
 // What do you get if you multiply together the sizes of the three largest basins?
 
 const Point = struct {
-    x : i64,
-    y : i64,
+    x: i64,
+    y: i64,
 };
 
 fn find_basin_size(row: i64, col: i64, nums: std.ArrayList([]u8), already_seen: *std.AutoHashMap(Point, bool)) u64 {
@@ -146,9 +146,9 @@ fn find_basin_size(row: i64, col: i64, nums: std.ArrayList([]u8), already_seen: 
 
     already_seen.put(Point{ .x = row, .y = col }, true) catch unreachable;
     var size = find_basin_size(row + 1, col, nums, already_seen);
-    size +=  find_basin_size(row - 1, col, nums, already_seen);
-    size +=  find_basin_size(row, col + 1, nums, already_seen);
-    size +=  find_basin_size(row, col - 1, nums, already_seen);
+    size += find_basin_size(row - 1, col, nums, already_seen);
+    size += find_basin_size(row, col + 1, nums, already_seen);
+    size += find_basin_size(row, col - 1, nums, already_seen);
     return size + 1;
 }
 
@@ -159,9 +159,9 @@ fn part2(nums: std.ArrayList([]u8)) !u64 {
     var basin = std.ArrayList(u64).init(std.testing.allocator);
     defer basin.deinit();
 
-    var row : i64 = 0;
+    var row: i64 = 0;
     while (row < nums.items.len) : (row += 1) {
-        var col : i64 = 0;
+        var col: i64 = 0;
         var r = @intCast(usize, row);
         while (col < nums.items[r].len) : (col += 1) {
             var size = find_basin_size(row, col, nums, &already_seen);

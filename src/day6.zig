@@ -53,14 +53,14 @@ const std = @import("std");
 const input = @embedFile("../input/day6.txt");
 
 pub fn solve() !void {
-    var numbers = std.mem.tokenize(u8,input, ",");
+    var numbers = std.mem.tokenize(u8, input, ",");
     var nums = std.ArrayList(u32).init(std.testing.allocator);
     defer nums.deinit();
     while (numbers.next()) |n| {
         try nums.append(try std.fmt.parseInt(u32, n, 10));
     }
 
-    std.log.info("Day6 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(&nums), part2(&nums)});
+    std.log.info("Day6 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(&nums), part2(&nums) });
 }
 
 fn part1(nums: *std.ArrayList(u32)) !u64 {
@@ -81,7 +81,7 @@ fn udpate_lanternfish(nums: *std.ArrayList(u32), days: u32) u64 {
         ages[n] += 1;
     }
 
-    var i : u32 = 0;
+    var i: u32 = 0;
     while (i < days) : (i += 1) {
         var new_fish = ages[0];
         ages[0] = ages[1];
@@ -99,7 +99,7 @@ fn udpate_lanternfish(nums: *std.ArrayList(u32), days: u32) u64 {
     for (ages) |count| {
         total += count;
     }
-    
+
     return total;
 }
 

@@ -28,13 +28,12 @@
 
 // Calculate the horizontal position and depth you would have after following the planned course. What do you get if you multiply your final horizontal position by your final depth?
 
-
 const std = @import("std");
 
 const input = @embedFile("../input/day2.txt");
 
 pub fn solve() !void {
-    std.log.info("Day2 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(), part2()});
+    std.log.info("Day2 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(), part2() });
 }
 
 fn part1() !u32 {
@@ -42,7 +41,7 @@ fn part1() !u32 {
     var forward: u32 = 0;
     var depth: u32 = 0;
 
-    while (lines.next()) | line | {
+    while (lines.next()) |line| {
         var direction_value = std.mem.tokenize(u8, line, " ");
         var direction = direction_value.next().?;
         var value_str = direction_value.next().?;
@@ -56,7 +55,7 @@ fn part1() !u32 {
             forward += value;
         }
     }
-    
+
     return forward * depth;
 }
 
@@ -90,11 +89,11 @@ fn part2() !u32 {
     var depth: u32 = 0;
     var aim: u32 = 0;
 
-    while (lines.next()) | line | {
+    while (lines.next()) |line| {
         var direction_value = std.mem.tokenize(u8, line, " ");
         var direction = direction_value.next().?;
         var value_str = direction_value.next().?;
-        var value = try std.fmt.parseInt(u32,value_str, 10);
+        var value = try std.fmt.parseInt(u32, value_str, 10);
 
         if (direction[0] == 'u') {
             aim -= value;

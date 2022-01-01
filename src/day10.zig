@@ -54,7 +54,7 @@ const std = @import("std");
 const input = @embedFile("../input/day10.txt");
 
 pub fn solve() !void {
-    std.log.info("Day10 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(), part2()});
+    std.log.info("Day10 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(), part2() });
 }
 
 fn reverse_of(open: u8) !u8 {
@@ -79,11 +79,11 @@ fn score_of(close: u8) !u64 {
 
 fn part1() !u64 {
     var lines = std.mem.tokenize(u8, input, "\n");
-    var total : u64 = 0;
+    var total: u64 = 0;
     var stack = std.ArrayList(u8).init(std.testing.allocator);
-    defer stack.deinit();    
-    while (lines.next()) | line | {
-        for (line) | ch | {
+    defer stack.deinit();
+    while (lines.next()) |line| {
+        for (line) |ch| {
             switch (ch) {
                 '(', '[', '{', '<' => try stack.append(ch),
                 else => {
@@ -156,9 +156,9 @@ fn part2() !u64 {
     var scores = std.ArrayList(u64).init(std.testing.allocator);
     defer scores.deinit();
 
-    while (lines.next()) | line | {
+    while (lines.next()) |line| {
         var corrupted = false;
-        for (line) | ch | {
+        for (line) |ch| {
             switch (ch) {
                 '(', '[', '{', '<' => try stack.append(ch),
                 else => {
@@ -173,7 +173,7 @@ fn part2() !u64 {
         }
 
         if (!corrupted) {
-            var total : u64 = 0;
+            var total: u64 = 0;
             while (stack.items.len != 0) {
                 const last = stack.pop();
                 total *= 5;

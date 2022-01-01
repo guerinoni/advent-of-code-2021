@@ -71,7 +71,7 @@ const std = @import("std");
 const input = @embedFile("../input/day8.txt");
 
 pub fn solve() !void {
-    std.log.info("Day8 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(), part2()});
+    std.log.info("Day8 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(), part2() });
 }
 
 fn part1() !u64 {
@@ -85,7 +85,9 @@ fn part1() !u64 {
         var digits = std.mem.split(u8, output_values.?, " ");
         while (digits.next()) |digit_str| {
             switch (digit_str.len) {
-                2, 3, 4, 7 => {easy_digits += 1;},
+                2, 3, 4, 7 => {
+                    easy_digits += 1;
+                },
                 else => {},
             }
         }
@@ -146,14 +148,16 @@ fn part1() !u64 {
 
 fn segment_mask(str: []const u8) u7 {
     var set = std.StaticBitSet(7).initEmpty();
-    for (str) | ch | { set.set(ch - 'a'); }
+    for (str) |ch| {
+        set.set(ch - 'a');
+    }
     return set.mask;
 }
 
 fn part2() !i64 {
-    var sum : i64 = 0;
+    var sum: i64 = 0;
     var lines = std.mem.tokenize(u8, input, "\r\n");
-    while (lines.next()) | line | {
+    while (lines.next()) |line| {
         var parts = std.mem.tokenize(u8, line, " |");
         var four: u7 = undefined;
         var seven: u7 = undefined;
@@ -175,23 +179,17 @@ fn part2() !i64 {
                 7 => 8,
                 5 => blk: {
                     const mask = segment_mask(str);
-                    break :blk 
-                    if (mask & seven == seven) @as(i64, 3)
-                    else if (@popCount(u7, mask & four) == 3) @as(i64, 5)
-                    else @as(i64, 2);
+                    break :blk if (mask & seven == seven) @as(i64, 3) else if (@popCount(u7, mask & four) == 3) @as(i64, 5) else @as(i64, 2);
                 },
                 6 => blk: {
                     const mask = segment_mask(str);
-                    break :blk 
-                    if (mask & four == four) @as(i64, 9)
-                    else if (mask & seven == seven) @as(i64, 0)
-                    else @as(i64, 6);
+                    break :blk if (mask & four == four) @as(i64, 9) else if (mask & seven == seven) @as(i64, 0) else @as(i64, 6);
                 },
                 else => unreachable,
             };
             num = num * 10 + digit;
         }
-        
+
         sum += @intCast(i64, num);
     }
 

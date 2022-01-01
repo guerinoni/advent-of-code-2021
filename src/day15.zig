@@ -1,9 +1,9 @@
 // --- Day 15: Chiton ---
-// 
+//
 // You've almost reached the exit of the cave, but the walls are getting closer together. Your submarine can barely still fit, though; the main problem is that the walls of the cave are covered in chitons, and it would be best not to bump any of them.
-// 
+//
 // The cavern is large, but has a very low ceiling, restricting your motion to two dimensions. The shape of the cavern resembles a square; a quick scan of chiton density produces a map of risk level throughout the cave (your puzzle input). For example:
-// 
+//
 // 1163751742
 // 1381373672
 // 2136511328
@@ -14,11 +14,11 @@
 // 3125421639
 // 1293138521
 // 2311944581
-// 
+//
 // You start in the top left position, your destination is the bottom right position, and you cannot move diagonally. The number at each position is its risk level; to determine the total risk of an entire path, add up the risk levels of each position you enter (that is, don't count the risk level of your starting position unless you enter it; leaving it adds no risk to your total).
-// 
+//
 // Your goal is to find a path with the lowest total risk. In this example, a path with the lowest total risk is highlighted here:
-// 
+//
 // 1163751742
 // 1381373672
 // 2136511328
@@ -29,9 +29,9 @@
 // 3125421639
 // 1293138521
 // 2311944581
-// 
+//
 // The total risk of this path is 40 (the starting position is never entered, so its risk is not counted).
-// 
+//
 // What is the lowest total risk of any path from the top left to the bottom right?
 
 const std = @import("std");
@@ -41,22 +41,24 @@ const input = @embedFile("../input/day15.txt");
 pub fn solve() !void {
     var map = std.ArrayList(u8).init(std.testing.allocator);
     defer map.deinit();
-    var width : usize = 0;
+    var width: usize = 0;
     {
-        var maybeWidth : ?usize = null;
+        var maybeWidth: ?usize = null;
         var lines = std.mem.tokenize(u8, input, "\r\n");
-        while (lines.next()) | line | {
+        while (lines.next()) |line| {
             if (maybeWidth == null) {
                 maybeWidth = line.len;
             }
-        
-            for (line) | c | { try map.append(c - '0'); }
+
+            for (line) |c| {
+                try map.append(c - '0');
+            }
         }
 
         width = maybeWidth.?;
     }
 
-    std.log.info("Day15 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(map, width), part2(map, width)});
+    std.log.info("Day15 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(map, width), part2(map, width) });
 }
 
 fn part1(map: std.ArrayList(u8), width: usize) !u64 {
@@ -118,14 +120,16 @@ fn a_star(map: std.ArrayList(u8), width: usize) !usize {
             }
         }
     }
-    
+
     unreachable;
 }
 
-fn append_neighbour(neighbour : usize, open_set : *std.ArrayList(usize), costs : std.ArrayList(u32)) !void {
-    var insertIndex : ?usize = null;
-    for (open_set.items) | item, i | {
-        if (compare(costs, item, neighbour)) { continue; }
+fn append_neighbour(neighbour: usize, open_set: *std.ArrayList(usize), costs: std.ArrayList(u32)) !void {
+    var insertIndex: ?usize = null;
+    for (open_set.items) |item, i| {
+        if (compare(costs, item, neighbour)) {
+            continue;
+        }
         insertIndex = i;
         break;
     }
@@ -152,21 +156,21 @@ fn compare(costs: std.ArrayList(u32), a: usize, b: usize) bool {
 }
 
 // --- Part Two ---
-// 
+//
 // Now that you know how to find low-risk paths in the cave, you can try to find your way out.
-// 
+//
 // The entire cave is actually five times larger in both dimensions than you thought; the area you originally scanned is just one tile in a 5x5 tile area that forms the full map. Your original map tile repeats to the right and downward; each time the tile repeats to the right or downward, all of its risk levels are 1 higher than the tile immediately up or left of it. However, risk levels above 9 wrap back around to 1. So, if your original map had some position with a risk level of 8, then that same position on each of the 25 total tiles would be as follows:
-// 
+//
 // 8 9 1 2 3
 // 9 1 2 3 4
 // 1 2 3 4 5
 // 2 3 4 5 6
 // 3 4 5 6 7
-// 
+//
 // Each single digit above corresponds to the example position with a value of 8 on the top-left tile. Because the full map is actually five times larger in both dimensions, that position appears a total of 25 times, once in each duplicated tile, with the values shown above.
-// 
+//
 // Here is the full five-times-as-large version of the first example above, with the original map in the top left corner highlighted:
-// 
+//
 // 11637517422274862853338597396444961841755517295286
 // 13813736722492484783351359589446246169155735727126
 // 21365113283247622439435873354154698446526571955763
@@ -217,9 +221,9 @@ fn compare(costs: std.ArrayList(u32), a: usize, b: usize) bool {
 // 75698651748671976285978218739618932984172914319528
 // 56475739656758684176786979528789718163989182927419
 // 67554889357866599146897761125791887223681299833479
-// 
+//
 // Equipped with the full map, you can now find a path from the top left corner to the bottom right corner with the lowest total risk:
-// 
+//
 // 11637517422274862853338597396444961841755517295286
 // 13813736722492484783351359589446246169155735727126
 // 21365113283247622439435873354154698446526571955763
@@ -270,9 +274,9 @@ fn compare(costs: std.ArrayList(u32), a: usize, b: usize) bool {
 // 75698651748671976285978218739618932984172914319528
 // 56475739656758684176786979528789718163989182927419
 // 67554889357866599146897761125791887223681299833479
-// 
+//
 // The total risk of this path is 315 (the starting position is still never entered, so its risk is not counted).
-// 
+//
 // Using the full map, what is the lowest total risk of any path from the top left to the bottom right?
 
 fn part2(map: std.ArrayList(u8), width: usize) !u64 {
@@ -280,13 +284,13 @@ fn part2(map: std.ArrayList(u8), width: usize) !u64 {
     var bigger_map = std.ArrayList(u8).init(std.testing.allocator);
     defer bigger_map.deinit();
 
-    var y_tile : u8 = 0;
+    var y_tile: u8 = 0;
     while (y_tile < 5) : (y_tile += 1) {
-        var y : u32 = 0;
+        var y: u32 = 0;
         while (y < width) : (y += 1) {
-            var x_tile : u8 = 0;
+            var x_tile: u8 = 0;
             while (x_tile < 5) : (x_tile += 1) {
-                var x : u32 = 0;
+                var x: u32 = 0;
                 while (x < width) : (x += 1) {
                     const orig_value = map.items[y * width + x];
                     const value = (orig_value + y_tile + x_tile) % 9;

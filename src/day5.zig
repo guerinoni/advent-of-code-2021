@@ -71,8 +71,10 @@ pub fn solve() !void {
         defer vents.deinit();
         var lines = std.mem.tokenize(u8, input, "\r\n");
         while (lines.next()) |line| {
-            if (line.len == 0) {continue;}
-            var parts = std.mem.tokenize(u8,line, " ,->");
+            if (line.len == 0) {
+                continue;
+            }
+            var parts = std.mem.tokenize(u8, line, " ,->");
             vents.append(.{
                 .start = .{
                     .x = try std.fmt.parseInt(i64, parts.next().?, 10),
@@ -86,9 +88,9 @@ pub fn solve() !void {
         }
         break :blk vents.toOwnedSlice();
     };
-    
+
     var map: VentMap = .{};
-    std.log.info("Day5 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(vents, &map), part2(vents, &map)});
+    std.log.info("Day5 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(vents, &map), part2(vents, &map) });
 }
 
 fn part1(vents: []VentLine, map: *VentMap) !u32 {

@@ -35,7 +35,7 @@ const std = @import("std");
 const input = @embedFile("../input/day7.txt");
 
 pub fn solve() !void {
-    var numbers = std.mem.tokenize(u8,input, ",");
+    var numbers = std.mem.tokenize(u8, input, ",");
     var nums = std.ArrayList(i64).init(std.testing.allocator);
     defer nums.deinit();
     while (numbers.next()) |n| {
@@ -44,7 +44,7 @@ pub fn solve() !void {
 
     var crabs = nums.toOwnedSlice();
     std.sort.sort(i64, crabs, {}, comptime std.sort.asc(i64));
-    std.log.info("Day7 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(crabs), part2(crabs)});
+    std.log.info("Day7 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(crabs), part2(crabs) });
 }
 
 fn part1(positions: []i64) !i64 {

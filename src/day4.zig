@@ -53,13 +53,12 @@
 
 // To guarantee victory against the giant squid, figure out which board will win first. What will your final score be if you choose that board?
 
-
 const std = @import("std");
 
 const input = @embedFile("../input/day4.txt");
 
 pub fn solve() !void {
-    std.log.info("Day4 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(), part2()});
+    std.log.info("Day4 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(), part2() });
 }
 
 fn part1() !u32 {
@@ -68,7 +67,7 @@ fn part1() !u32 {
     var bingo_nums = std.ArrayList(u8).init(std.testing.allocator);
     var bingo_line = std.mem.tokenize(u8, lines.next().?, ",");
 
-    while (bingo_line.next()) | line | {
+    while (bingo_line.next()) |line| {
         try bingo_nums.append(try std.fmt.parseInt(u8, line, 10));
     }
 
@@ -77,89 +76,7 @@ fn part1() !u32 {
     var board_totals = std.ArrayList(u32).init(std.testing.allocator);
     var board_finished = std.ArrayList(bool).init(std.testing.allocator);
 
-    while (lines.next()) | line | {
-        var board_nums = std.mem.tokenize(u8, line, " \n");
-        var board: [25]u8 = undefined;
-        for (board) |*num| {
-            num.* = try std.fmt.parseInt(u8, board_nums.next().?, 10);
-        }
-        try bingo_boards.append(board);
-        try board_tallys.append([_]u8{0} ** (5 + 5));
-        try board_totals.append(0);
-        try board_finished.append(false);
-    }
-
-    var ret: u32 = 0;
-    var boards_finished: u32 = 0;
-    stop_bingo: for (bingo_nums.items) | bingo_num | {
-        for (bingo_boards.items) | board, i | {
-            if (board_finished.items[i]) {
-                continue;
-            }
-
-            for (board) | board_num, num_i | {
-                if (board_num == bingo_num) {
-                    board_totals.items[i] += bingo_num;
-                    board_tallys.items[i][num_i / 5] += 1;
-                    board_tallys.items[i][5 + num_i % 5] += 1;
-                    if (board_tallys.items[i][num_i / 5] == 5 or
-                        board_tallys.items[i][5 + num_i % 5] == 5) {
-                        boards_finished += 1;
-                        board_finished.items[i] = true;
-                        if (boards_finished == 1) {
-                            ret = calculateBoardSum(board, board_totals.items[i]) * bingo_num;
-                        }
-                        
-                        if (boards_finished == board_finished.items.len) {
-                            break :stop_bingo;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    return ret;
-}
-
-fn calculateBoardSum(board: [25]u8, board_total: u32) u32 {
-    const sum = blk: {
-        var acc: u32 = 0;
-        for (board) | num | {
-            acc += num;
-        }
-        acc -= board_total;
-        break :blk acc;
-    };
-    return sum;
-}
-
-// --- Part Two ---
-// On the other hand, it might be wise to try a different strategy: let the giant squid win.
-
-// You aren't sure how many bingo boards a giant squid could play at once, so rather than waste time counting its arms, the safe thing to do is to figure out which board will win last and choose that one. That way, no matter which boards it picks, it will win for sure.
-
-// In the above example, the second board is the last to win, which happens after 13 is eventually called and its middle column is completely marked. If you were to keep playing until this point, the second board would have a sum of unmarked numbers equal to 148 for a final score of 148 * 13 = 1924.
-
-// Figure out which board will win last. Once it wins, what would its final score be?
-
-fn part2() !u32 {
-    var lines = std.mem.split(u8, input, "\n\n");
-
-    var bingo_nums = std.ArrayList(u8).init(std.testing.allocator);
-    var bingo_line = std.mem.tokenize(u8, lines.next().?, ",");
-
-    while (bingo_line.next()) | line | {
-        try bingo_nums.append(try std.fmt.parseInt(u8, line, 10));
-    }
-
-    var bingo_boards = std.ArrayList([5 * 5]u8).init(std.testing.allocator);
-    var board_tallys = std.ArrayList([5 + 5]u8).init(std.testing.allocator);
-    var board_totals = std.ArrayList(u32).init(std.testing.allocator);
-    var board_finished = std.ArrayList(bool).init(std.testing.allocator);
-
-    while (lines.next()) | line | {
+    while (lines.next()) |line| {
         var board_nums = std.mem.tokenize(u8, line, " \n");
         var board: [25]u8 = undefined;
         for (board) |*num| {
@@ -185,7 +102,91 @@ fn part2() !u32 {
                     board_tallys.items[i][num_i / 5] += 1;
                     board_tallys.items[i][5 + num_i % 5] += 1;
                     if (board_tallys.items[i][num_i / 5] == 5 or
-                        board_tallys.items[i][5 + num_i % 5] == 5) {
+                        board_tallys.items[i][5 + num_i % 5] == 5)
+                    {
+                        boards_finished += 1;
+                        board_finished.items[i] = true;
+                        if (boards_finished == 1) {
+                            ret = calculateBoardSum(board, board_totals.items[i]) * bingo_num;
+                        }
+
+                        if (boards_finished == board_finished.items.len) {
+                            break :stop_bingo;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return ret;
+}
+
+fn calculateBoardSum(board: [25]u8, board_total: u32) u32 {
+    const sum = blk: {
+        var acc: u32 = 0;
+        for (board) |num| {
+            acc += num;
+        }
+        acc -= board_total;
+        break :blk acc;
+    };
+    return sum;
+}
+
+// --- Part Two ---
+// On the other hand, it might be wise to try a different strategy: let the giant squid win.
+
+// You aren't sure how many bingo boards a giant squid could play at once, so rather than waste time counting its arms, the safe thing to do is to figure out which board will win last and choose that one. That way, no matter which boards it picks, it will win for sure.
+
+// In the above example, the second board is the last to win, which happens after 13 is eventually called and its middle column is completely marked. If you were to keep playing until this point, the second board would have a sum of unmarked numbers equal to 148 for a final score of 148 * 13 = 1924.
+
+// Figure out which board will win last. Once it wins, what would its final score be?
+
+fn part2() !u32 {
+    var lines = std.mem.split(u8, input, "\n\n");
+
+    var bingo_nums = std.ArrayList(u8).init(std.testing.allocator);
+    var bingo_line = std.mem.tokenize(u8, lines.next().?, ",");
+
+    while (bingo_line.next()) |line| {
+        try bingo_nums.append(try std.fmt.parseInt(u8, line, 10));
+    }
+
+    var bingo_boards = std.ArrayList([5 * 5]u8).init(std.testing.allocator);
+    var board_tallys = std.ArrayList([5 + 5]u8).init(std.testing.allocator);
+    var board_totals = std.ArrayList(u32).init(std.testing.allocator);
+    var board_finished = std.ArrayList(bool).init(std.testing.allocator);
+
+    while (lines.next()) |line| {
+        var board_nums = std.mem.tokenize(u8, line, " \n");
+        var board: [25]u8 = undefined;
+        for (board) |*num| {
+            num.* = try std.fmt.parseInt(u8, board_nums.next().?, 10);
+        }
+        try bingo_boards.append(board);
+        try board_tallys.append([_]u8{0} ** (5 + 5));
+        try board_totals.append(0);
+        try board_finished.append(false);
+    }
+
+    var ret: u32 = 0;
+    var boards_finished: u32 = 0;
+    stop_bingo: for (bingo_nums.items) |bingo_num| {
+        for (bingo_boards.items) |board, i| {
+            if (board_finished.items[i]) {
+                continue;
+            }
+
+            for (board) |board_num, num_i| {
+                if (board_num == bingo_num) {
+                    board_totals.items[i] += bingo_num;
+                    board_tallys.items[i][num_i / 5] += 1;
+                    board_tallys.items[i][5 + num_i % 5] += 1;
+                    if (board_tallys.items[i][num_i / 5] == 5 or
+                        board_tallys.items[i][5 + num_i % 5] == 5)
+                    {
                         boards_finished += 1;
                         board_finished.items[i] = true;
                         if (boards_finished == board_finished.items.len) {

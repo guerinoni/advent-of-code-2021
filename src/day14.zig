@@ -52,7 +52,7 @@ const std = @import("std");
 const input = @embedFile("../input/day14.txt");
 
 pub fn solve() !void {
-    std.log.info("Day14 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(), part2()});
+    std.log.info("Day14 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(), part2() });
 }
 
 const u8x2 = std.meta.Vector(2, u8);
@@ -107,7 +107,9 @@ fn part1() !u64 {
         std.sort.sort(usize, &char_counts, {}, comptime std.sort.desc(usize));
 
         const max = char_counts[0];
-        const min = for (char_counts) |x, i| { if (char_counts[i + 1] == 0) break x; } else unreachable;
+        const min = for (char_counts) |x, i| {
+            if (char_counts[i + 1] == 0) break x;
+        } else unreachable;
         const answer = max - min;
         return answer;
     }
@@ -160,7 +162,9 @@ fn part2() !u64 {
         std.sort.sort(usize, &char_counts, {}, comptime std.sort.desc(usize));
 
         const max = char_counts[0];
-        const min = for (char_counts) |x, i| { if (char_counts[i + 1] == 0) break x; } else unreachable;
+        const min = for (char_counts) |x, i| {
+            if (char_counts[i + 1] == 0) break x;
+        } else unreachable;
         const answer = max - min;
         return answer;
     }

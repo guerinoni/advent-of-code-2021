@@ -297,26 +297,32 @@ const std = @import("std");
 const input = @embedFile("../input/day11.txt");
 
 pub fn solve() !void {
-    std.log.info("Day11 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{part1(), part2()});
+    std.log.info("Day11 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(), part2() });
 }
 
 const Point = struct { x: u64, y: u64 };
 
-fn do_step(octopus: *std.ArrayList([]u8), already_flashed: *std.AutoHashMap(Point, bool), i : u64, j : u64) u64 {
+fn do_step(octopus: *std.ArrayList([]u8), already_flashed: *std.AutoHashMap(Point, bool), i: u64, j: u64) u64 {
     octopus.items[i][j] += 1;
-    var flash : u64 = 0;
+    var flash: u64 = 0;
     var done = already_flashed.contains(Point{ .x = i, .y = j });
     if (octopus.items[i][j] == 10 and !done) {
         flash += 1;
         already_flashed.put(Point{ .x = i, .y = j }, true) catch unreachable;
-        var adjacent = [_]i32 { -1, 0, 1 };
-        for (adjacent) | x | {
-            for (adjacent) | y | {
-                if (x == 0 and y == 0) { continue; }
-                var new_i : i32 = @intCast(i32, i) + x;
-                var new_j : i32 = @intCast(i32, j) + y;
-                if (new_i < 0 or new_i > 9) { continue; }
-                if (new_j < 0 or new_j > 9) { continue; }
+        var adjacent = [_]i32{ -1, 0, 1 };
+        for (adjacent) |x| {
+            for (adjacent) |y| {
+                if (x == 0 and y == 0) {
+                    continue;
+                }
+                var new_i: i32 = @intCast(i32, i) + x;
+                var new_j: i32 = @intCast(i32, j) + y;
+                if (new_i < 0 or new_i > 9) {
+                    continue;
+                }
+                if (new_j < 0 or new_j > 9) {
+                    continue;
+                }
                 flash += do_step(octopus, already_flashed, @intCast(usize, new_i), @intCast(usize, new_j));
             }
         }
@@ -328,23 +334,23 @@ fn do_step(octopus: *std.ArrayList([]u8), already_flashed: *std.AutoHashMap(Poin
 fn part1() !u64 {
     var lines = std.mem.tokenize(u8, input, "\n");
     var octopus = std.ArrayList([]u8).init(std.testing.allocator);
-    defer octopus.deinit();    
-    while (lines.next()) | line | {
+    defer octopus.deinit();
+    while (lines.next()) |line| {
         var row = std.ArrayList(u8).init(std.testing.allocator);
-        for (line) | ch | {
+        for (line) |ch| {
             try row.append(ch - '0');
         }
         try octopus.append(row.toOwnedSlice());
     }
 
-    var flashes : u64 = 0;
-    var rep : u32 = 0;
+    var flashes: u64 = 0;
+    var rep: u32 = 0;
     while (rep < 100) : (rep += 1) {
         var already_flashed = std.AutoHashMap(Point, bool).init(std.testing.allocator);
         defer already_flashed.deinit();
-        var i : u32 = 0;
+        var i: u32 = 0;
         while (i < octopus.items.len) : (i += 1) {
-            var j : u32 = 0;
+            var j: u32 = 0;
             while (j < octopus.items[i].len) : (j += 1) {
                 flashes += do_step(&octopus, &already_flashed, i, j);
             }
@@ -352,7 +358,7 @@ fn part1() !u64 {
 
         i = 0;
         while (i < octopus.items.len) : (i += 1) {
-            var j : u32 = 0;
+            var j: u32 = 0;
             while (j < octopus.items[i].len) : (j += 1) {
                 var done = already_flashed.contains(Point{ .x = i, .y = j });
                 if (done) {
@@ -361,7 +367,7 @@ fn part1() !u64 {
             }
         }
     }
-    
+
     return flashes;
 }
 
@@ -410,22 +416,22 @@ fn part1() !u64 {
 fn part2() !u64 {
     var lines = std.mem.tokenize(u8, input, "\n");
     var octopus = std.ArrayList([]u8).init(std.testing.allocator);
-    defer octopus.deinit();    
-    while (lines.next()) | line | {
+    defer octopus.deinit();
+    while (lines.next()) |line| {
         var row = std.ArrayList(u8).init(std.testing.allocator);
-        for (line) | ch | {
+        for (line) |ch| {
             try row.append(ch - '0');
         }
         try octopus.append(row.toOwnedSlice());
     }
 
-    var rep : u32 = 1;
+    var rep: u32 = 1;
     while (true) : (rep += 1) {
         var already_flashed = std.AutoHashMap(Point, bool).init(std.testing.allocator);
         defer already_flashed.deinit();
-        var i : u32 = 0;
+        var i: u32 = 0;
         while (i < octopus.items.len) : (i += 1) {
-            var j : u32 = 0;
+            var j: u32 = 0;
             while (j < octopus.items[i].len) : (j += 1) {
                 var a = do_step(&octopus, &already_flashed, i, j);
                 _ = a;
@@ -438,7 +444,7 @@ fn part2() !u64 {
 
         i = 0;
         while (i < octopus.items.len) : (i += 1) {
-            var j : u32 = 0;
+            var j: u32 = 0;
             while (j < octopus.items[i].len) : (j += 1) {
                 var done = already_flashed.contains(Point{ .x = i, .y = j });
                 if (done) {
@@ -447,6 +453,6 @@ fn part2() !u64 {
             }
         }
     }
-    
+
     return 0;
 }
