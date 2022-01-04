@@ -92,22 +92,3 @@ fn part2(positions: []i64) !i64 {
     }
     return fuel;
 }
-
-test "part1 test" {
-    const Vec32 = std.ArrayList(i64);
-    var nums = Vec32.init(std.testing.allocator);
-    defer nums.deinit();
-    try nums.append(16);
-    try nums.append(1);
-    try nums.append(2);
-    try nums.append(0);
-    try nums.append(4);
-    try nums.append(2);
-    try nums.append(7);
-    try nums.append(1);
-    try nums.append(2);
-    try nums.append(14);
-    var crabs = nums.toOwnedSlice();
-    var ret = try part1(crabs);
-    try std.testing.expect(ret == 37);
-}
