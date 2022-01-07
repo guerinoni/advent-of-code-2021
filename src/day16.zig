@@ -99,7 +99,7 @@ const input = @embedFile("../input/day16.txt");
 pub fn solve() !void {
     var buf: [input.len / 2]u8 = undefined;
     var bytes = try std.fmt.hexToBytes(&buf, std.mem.trim(u8, input, "\n"));
-    std.log.info("Day16 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(bytes), part2() });
+    std.log.info("Day16 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(bytes), part2(bytes) });
 }
 
 const BitReader = struct {
@@ -270,6 +270,8 @@ fn part1(bytes: []u8) !u64 {
     return p.version;
 }
 
-fn part2() !u64 {
-    return 0;
+fn part2(bytes: []u8) !u64 {
+    var br = BitReader { .bytes = bytes, .byte = @bitReverse(u8, bytes[0]), .byte_index = 0, .index = 0, .eof = false };
+    var p = try parse(&br);
+    return p.val;
 }
