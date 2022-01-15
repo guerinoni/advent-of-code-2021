@@ -401,7 +401,7 @@ pub fn solve() !void {
     var count = std.AutoHashMap(Point, usize).init(std.testing.allocator);
     defer count.deinit();
 
-    std.log.info("Day19 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(&memo, &scanners, &count), part2() });
+    std.log.info("Day19 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(&memo, &scanners, &count), part2(&memo) });
 }
 
 const Point = struct {
@@ -514,9 +514,8 @@ fn part1(memo: *Memo, scanners: *std.ArrayList(Scanner), count: *std.AutoHashMap
     memo.add(scanners.items[0], 0, .{ .x = 0, .y = 0, .z = 0 }, 0);
     loop: while (memo.pending.count() != 0) {
         var pit = memo.pending.iterator(.{});
-        while (pit.next()) |i| {
+        while (pit.next()) | i | {
             const scanner = scanners.items[i];
-
             var rotation: u32 = 0;
             while (rotation < 24) : (rotation += 1) {
                 count.clearRetainingCapacity();
@@ -538,10 +537,26 @@ fn part1(memo: *Memo, scanners: *std.ArrayList(Scanner), count: *std.AutoHashMap
             }
         }
     }
-    
+
     return memo.known_beancons.keys().len;
 }
 
-fn part2() !u64 {
-    return 0;
+// --- Part Two ---
+// 
+// Sometimes, it's a good idea to appreciate just how big the ocean is. Using the Manhattan distance, how far apart do the scanners get?
+// 
+// In the above example, scanners 2 (1105,-1205,1229) and 3 (-92,-2380,-20) are the largest Manhattan distance apart. In total, they are 1197 + 1175 + 1249 = 3621 units apart.
+// 
+// What is the largest Manhattan distance between any two scanners?
+
+fn part2(memo: *Memo) !isize {
+    var ret: isize = 0;
+    for (memo.transforms[0 .. memo.transforms.len - 1]) |a, i| {
+        for (memo.transforms[i + 1 ..]) |b| {
+            const dist = a.manhattan_distance(b);
+            if (dist > ret) ret = dist;
+        }
+    }
+
+    return ret;
 }
