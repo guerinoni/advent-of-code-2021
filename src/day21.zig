@@ -55,13 +55,50 @@ pub fn solve() !void {
     var p2 = try std.fmt.parseInt(u8, iterator.next().?, 10);
     var player1: Player = .{ .pos = p1 };
     var player2: Player = .{ .pos = p2 };
-    std.log.info("Day21 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(&player1, &player2), part2() });
+    std.log.info("Day21 \n\tpart 1 -> {}\n\tpart 2 -> {}", .{ part1(player1, player2), part2(player1, player2) });
 }
 
-const Results = struct {
-    a: usize,
-    b: usize,
+const Player = struct {
+    score: usize = 0,
+    pos: usize,
+
+    fn update(self: *@This(), steps: [3]usize) void {
+        self.pos = (self.pos + steps[0] + steps[1] + steps[2] - 1) % 10 + 1;
+        self.score += self.pos;
+    }
 };
+
+fn part1(player1: Player, player2: Player) !u64 {
+    var p1 = player1;
+    var p2 = player2;
+    var step: usize = 1;
+    while (true) {
+        p1.update([_]usize{ step, step + 1, step + 2 });
+        step += 3;
+        if (p1.score >= 1000) 
+            return p2.score * (step - 1);
+        p2.update([_]usize{ step, step + 1, step + 2 });
+        step += 3;
+        if (p2.score >= 1000) 
+            return p1.score * (step - 1);
+    }
+
+    return 0;
+}
+
+// --- Part Two ---
+// 
+// Now that you're warmed up, it's time to play the real game.
+// 
+// A second compartment opens, this time labeled Dirac dice. Out of it falls a single three-sided die.
+// 
+// As you experiment with the die, you feel a little strange. An informational brochure in the compartment explains that this is a quantum die: when you roll it, the universe splits into multiple copies, one copy for each possible outcome of the die. In this case, rolling the die always splits the universe into three copies: one where the outcome of the roll was 1, one where it was 2, and one where it was 3.
+// 
+// The game is played the same as before, although to prevent things from getting too far out of hand, the game now ends when either player's score reaches at least 21.
+// 
+// Using the same starting positions as in the example above, player 1 wins in 444356092776315 universes, while player 2 merely wins in 341960390180808 universes.
+// 
+// Using your given starting positions, determine every possible outcome. Find the player that wins in more universes; in how many universes does that player win?
 
 const Players = struct {
     a: Player,
@@ -90,32 +127,24 @@ fn count(a: Player, b: Player, combs: *const [27][3]usize, memo: *std.AutoHashMa
     return result;
 }
 
-const Player = struct {
-    score: usize = 0,
-    pos: usize,
-
-    fn update(self: *@This(), steps: [3]usize) void {
-        self.pos = (self.pos + steps[0] + steps[1] + steps[2] - 1) % 10 + 1;
-        self.score += self.pos;
-    }
+const Results = struct {
+    a: usize,
+    b: usize,
 };
 
-fn part1(player1: *Player, player2: *Player) !u64 {
-    var step: usize = 1;
-    while (true) {
-        player1.update([_]usize{ step, step + 1, step + 2 });
-        step += 3;
-        if (player1.score >= 1000) 
-            return player2.score * (step - 1);
-        player2.update([_]usize{ step, step + 1, step + 2 });
-        step += 3;
-        if (player2.score >= 1000) 
-            return player1.score * (step - 1);
+fn part2(player1: Player, player2: Player) !u64 {
+    var memo = std.AutoHashMap(Players, Results).init(std.testing.allocator);
+    defer memo.deinit();
+    var combs: [27][3]usize = undefined;
+    var i: usize = 0;
+    for ([3]usize{ 1, 2, 3 }) |a| {
+        for ([3]usize{ 1, 2, 3 }) |b| {
+            for ([3]usize{ 1, 2, 3 }) |c| {
+                combs[i] = .{ a, b, c };
+                i += 1;
+            }
+        }
     }
-
-    return 0;
-}
-
-fn part2() !u32 {
-    return 0;
+    const ret = count(player1, player2, &combs, &memo);
+    return std.math.max(ret.a, ret.b);
 }
