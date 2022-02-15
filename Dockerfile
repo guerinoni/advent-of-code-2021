@@ -1,6 +1,6 @@
 FROM archlinux
 
-ARG VERSION=0.9.0
+ARG VERSION=0.9.1
 ARG TARGETOS=linux
 ARG TARGETARCH=x86_64
 RUN curl https://ziglang.org/download/$VERSION/zig-$TARGETOS-$TARGETARCH-$VERSION.tar.xz > zig.tar.xz && \
