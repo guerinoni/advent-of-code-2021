@@ -248,5 +248,4 @@ pub fn solve() !void {
 //
 // Start again with the original input image and apply the image enhancement algorithm 50 times. How many pixels are lit in the resulting image?
 
-
 // FIXME: Can't figure out how pass editable argument to func :(

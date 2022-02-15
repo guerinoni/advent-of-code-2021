@@ -1,20 +1,20 @@
 // --- Day 22: Reactor Reboot ---
-// 
+//
 // Operating at these extreme ocean depths has overloaded the submarine's reactor; it needs to be rebooted.
-// 
+//
 // The reactor core is made up of a large 3-dimensional grid made up entirely of cubes, one cube per integer 3-dimensional coordinate (x,y,z). Each cube can be either on or off; at the start of the reboot process, they are all off. (Could it be an old model of a reactor you've seen before?)
-// 
+//
 // To reboot the reactor, you just need to set all of the cubes to either on or off by following a list of reboot steps (your puzzle input). Each step specifies a cuboid (the set of all cubes that have coordinates which fall within ranges for x, y, and z) and whether to turn all of the cubes in that cuboid on or off.
-// 
+//
 // For example, given these reboot steps:
-// 
+//
 // on x=10..12,y=10..12,z=10..12
 // on x=11..13,y=11..13,z=11..13
 // off x=9..11,y=9..11,z=9..11
 // on x=10..10,y=10..10,z=10..10
-// 
+//
 // The first step (on x=10..12,y=10..12,z=10..12) turns on a 3x3x3 cuboid consisting of 27 cubes:
-// 
+//
 //     10,10,10
 //     10,10,11
 //     10,10,12
@@ -42,9 +42,9 @@
 //     12,12,10
 //     12,12,11
 //     12,12,12
-// 
+//
 // The second step (on x=11..13,y=11..13,z=11..13) turns on a 3x3x3 cuboid that overlaps with the first. As a result, only 19 additional cubes turn on; the rest are already on from the previous step:
-// 
+//
 //     11,11,13
 //     11,12,13
 //     11,13,11
@@ -64,9 +64,9 @@
 //     13,13,11
 //     13,13,12
 //     13,13,13
-// 
+//
 // The third step (off x=9..11,y=9..11,z=9..11) turns off a 3x3x3 cuboid that overlaps partially with some cubes that are on, ultimately turning off 8 cubes:
-// 
+//
 //     10,10,10
 //     10,10,11
 //     10,11,10
@@ -75,13 +75,13 @@
 //     11,10,11
 //     11,11,10
 //     11,11,11
-// 
+//
 // The final step (on x=10..10,y=10..10,z=10..10) turns on a single cube, 10,10,10. After this last step, 39 cubes are on.
-// 
+//
 // The initialization procedure only uses cubes that have x, y, and z positions of at least -50 and at most 50. For now, ignore cubes outside this region.
-// 
+//
 // Here is a larger example:
-// 
+//
 // on x=-20..26,y=-36..17,z=-47..7
 // on x=-20..33,y=-21..23,z=-26..28
 // on x=-22..28,y=-29..23,z=-38..16
@@ -104,9 +104,9 @@
 // on x=-41..9,y=-7..43,z=-33..15
 // on x=-54112..-39298,y=-85059..-49293,z=-27449..7877
 // on x=967..23432,y=45373..81175,z=27513..53682
-// 
+//
 // The last two steps are fully outside the initialization procedure area; all other steps are fully within it. After executing these steps in the initialization procedure region, 590784 cubes are on.
-// 
+//
 // Execute the reboot steps. Afterward, considering only cubes in the region x=-50..50,y=-50..50,z=-50..50, how many cubes are on?
 
 const std = @import("std");
@@ -118,9 +118,13 @@ const Map = struct {
 
     const Self = @This();
 
-    fn init() Self { return .{ .cubes = std.ArrayList(Cube).init(std.testing.allocator) }; }
+    fn init() Self {
+        return .{ .cubes = std.ArrayList(Cube).init(std.testing.allocator) };
+    }
 
-    fn deinit(self: *Self) void { self.cubes.deinit(); }
+    fn deinit(self: *Self) void {
+        self.cubes.deinit();
+    }
 
     fn count(self: *Self) i64 {
         var sum: i64 = 0;
@@ -255,8 +259,8 @@ fn part1() !i64 {
     var it = std.mem.tokenize(u8, input, "\n\r");
     var map = Map.init();
     defer map.deinit();
-    var ret : i64 = 0;
-    while (it.next()) | item | {
+    var ret: i64 = 0;
+    while (it.next()) |item| {
         var parts = std.mem.tokenize(u8, item, " ,");
         const on = parts.next().?[1] == 'n';
 
@@ -285,13 +289,13 @@ fn part1() !i64 {
 }
 
 // --- Part Two ---
-// 
+//
 // Now that the initialization procedure is complete, you can reboot the reactor.
-// 
+//
 // Starting with all cubes off, run all of the reboot steps for all cubes in the reactor.
-// 
+//
 // Consider the following reboot steps:
-// 
+//
 // on x=-5..47,y=-31..22,z=-19..33
 // on x=-44..5,y=-27..21,z=-14..35
 // on x=-49..-1,y=-11..42,z=-10..38
@@ -352,16 +356,16 @@ fn part1() !i64 {
 // off x=-70369..-16548,y=22648..78696,z=-1892..86821
 // on x=-53470..21291,y=-120233..-33476,z=-44150..38147
 // off x=-93533..-4276,y=-16170..68771,z=-104985..-24507
-// 
+//
 // After running the above reboot steps, 2758514936282235 cubes are on. (Just for fun, 474140 of those are also in the initialization procedure region.)
-// 
+//
 // Starting again with all cubes off, execute all reboot steps. Afterward, considering all cubes, how many cubes are on?
 
 fn part2() !i64 {
     var it = std.mem.tokenize(u8, input, "\n\r");
     var map = Map.init();
     defer map.deinit();
-    while (it.next()) | item | {
+    while (it.next()) |item| {
         var parts = std.mem.tokenize(u8, item, " ,");
         const on = parts.next().?[1] == 'n';
 
