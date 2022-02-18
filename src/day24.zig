@@ -179,9 +179,9 @@ fn part1(value: *[14]u8) !bool {
 }
 
 // --- Part Two ---
-// 
+//
 // As the submarine starts booting up things like the Retro Encabulator, you realize that maybe you don't need all these submarine features after all.
-// 
+//
 // What is the smallest model number accepted by MONAD?
 
 fn part2(value: *[14]u8) !bool {
