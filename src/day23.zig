@@ -170,6 +170,38 @@ const Burrow = struct {
         return self;
     }
 
+    pub fn init_part2(data: []const u8) @This() {
+        var iterator = std.mem.tokenize(u8, data, "#\r\n. ");
+
+        var self = @This(){
+            .rooms = [_]u8{'.'} ** 16,
+            .hallway = [_]u8{'.'} ** 11,
+            .room_size = 16,
+        };
+
+        for (self.rooms[0..8]) |*room| {
+            room.* = iterator.next().?[0];
+        }
+
+        for (self.rooms[4..8]) |room, i| {
+            self.rooms[12 + i] = room;
+        }
+
+        // insert as text says.
+        // #D#C#B#A#
+        // #D#B#A#C#
+        self.rooms[4] = 'D';
+        self.rooms[5] = 'C';
+        self.rooms[6] = 'B';
+        self.rooms[7] = 'A';
+        self.rooms[8] = 'D';
+        self.rooms[9] = 'B';
+        self.rooms[10] = 'A';
+        self.rooms[11] = 'C';
+
+        return self;
+    }
+
     fn is_legal_move(self: *const @This(), room: usize, hallway: usize) bool {
         if (hallway >= 2 and hallway <= 8 and (hallway % 2) == 0) {
             return false;
@@ -220,7 +252,7 @@ const Burrow = struct {
         return true;
     }
 
-    fn possibleMoves(self: *const @This()) Moves {
+    fn get_possible_moves(self: *const @This()) Moves {
         var moves = Moves.init();
         {
             var index: usize = 0;
@@ -247,6 +279,7 @@ const Burrow = struct {
                 var offset: usize = 0;
                 if (self.rooms[ri] == '.' and self.is_legal_move(ri, hi)) {
                     var index: usize = 4;
+
                     while (index < self.room_size) : (index += 4) {
                         if (self.rooms[ri + index] == '.') {
                             offset += 4;
@@ -310,13 +343,11 @@ const Burrow = struct {
         var result: ?usize = null;
         while (search.items.len != 0) {
             const pop = search.swapRemove(0);
-
-            var seenAlready = reducer.get(pop.burrow);
-
-            if (seenAlready == null) {
+            var already_seen = reducer.get(pop.burrow);
+            if (already_seen == null) {
                 try reducer.put(pop.burrow, pop.cost);
             } else {
-                if (seenAlready.? <= pop.cost) {
+                if (already_seen.? <= pop.cost) {
                     continue;
                 }
 
@@ -329,12 +360,12 @@ const Burrow = struct {
                 }
             }
 
-            const searchResult = try pop.burrow.search_cost(pop.cost, &search);
-            if (searchResult != null) {
+            const search_result = try pop.burrow.search_cost(pop.cost, &search);
+            if (search_result != null) {
                 if (result == null) {
-                    result = searchResult.?;
+                    result = search_result.?;
                 } else {
-                    result = std.math.min(result.?, searchResult.?);
+                    result = std.math.min(result.?, search_result.?);
                 }
             }
         }
@@ -342,8 +373,8 @@ const Burrow = struct {
         return result.?;
     }
 
-    fn search_cost(self: *const @This(), inputCost: usize, search: *std.ArrayList(Potential)) !?usize {
-        const moves = self.possibleMoves();
+    fn search_cost(self: *const @This(), input_cost: usize, search: *std.ArrayList(Potential)) !?usize {
+        const moves = self.get_possible_moves();
         var m: usize = 0;
 
         while (m < moves.size) : (m += 1) {
@@ -360,7 +391,7 @@ const Burrow = struct {
                 new_self.rooms[move.room] = '.';
             }
 
-            const total = inputCost + myget_cost_of_move;
+            const total = input_cost + myget_cost_of_move;
             if (new_self.is_finished()) {
                 return total;
             }
@@ -377,6 +408,232 @@ fn part1() !usize {
     return try burrow.calculate_cost();
 }
 
+// --- Part Two ---
+//
+// As you prepare to give the amphipods your solution, you notice that the diagram they handed you was actually folded up. As you unfold it, you discover an extra part of the diagram.
+//
+// Between the first and second lines of text that contain amphipod starting positions, insert the following lines:
+//
+//   #D#C#B#A#
+//   #D#B#A#C#
+//
+// So, the above example now becomes:
+//
+// #############
+// #...........#
+// ###B#C#B#D###
+//   #D#C#B#A#
+//   #D#B#A#C#
+//   #A#D#C#A#
+//   #########
+//
+// The amphipods still want to be organized into rooms similar to before:
+//
+// #############
+// #...........#
+// ###A#B#C#D###
+//   #A#B#C#D#
+//   #A#B#C#D#
+//   #A#B#C#D#
+//   #########
+//
+// In this updated example, the least energy required to organize these amphipods is 44169:
+//
+// #############
+// #...........#
+// ###B#C#B#D###
+//   #D#C#B#A#
+//   #D#B#A#C#
+//   #A#D#C#A#
+//   #########
+//
+// #############
+// #..........D#
+// ###B#C#B#.###
+//   #D#C#B#A#
+//   #D#B#A#C#
+//   #A#D#C#A#
+//   #########
+//
+// #############
+// #A.........D#
+// ###B#C#B#.###
+//   #D#C#B#.#
+//   #D#B#A#C#
+//   #A#D#C#A#
+//   #########
+//
+// #############
+// #A........BD#
+// ###B#C#.#.###
+//   #D#C#B#.#
+//   #D#B#A#C#
+//   #A#D#C#A#
+//   #########
+//
+// #############
+// #A......B.BD#
+// ###B#C#.#.###
+//   #D#C#.#.#
+//   #D#B#A#C#
+//   #A#D#C#A#
+//   #########
+//
+// #############
+// #AA.....B.BD#
+// ###B#C#.#.###
+//   #D#C#.#.#
+//   #D#B#.#C#
+//   #A#D#C#A#
+//   #########
+//
+// #############
+// #AA.....B.BD#
+// ###B#.#.#.###
+//   #D#C#.#.#
+//   #D#B#C#C#
+//   #A#D#C#A#
+//   #########
+//
+// #############
+// #AA.....B.BD#
+// ###B#.#.#.###
+//   #D#.#C#.#
+//   #D#B#C#C#
+//   #A#D#C#A#
+//   #########
+//
+// #############
+// #AA...B.B.BD#
+// ###B#.#.#.###
+//   #D#.#C#.#
+//   #D#.#C#C#
+//   #A#D#C#A#
+//   #########
+//
+// #############
+// #AA.D.B.B.BD#
+// ###B#.#.#.###
+//   #D#.#C#.#
+//   #D#.#C#C#
+//   #A#.#C#A#
+//   #########
+//
+// #############
+// #AA.D...B.BD#
+// ###B#.#.#.###
+//   #D#.#C#.#
+//   #D#.#C#C#
+//   #A#B#C#A#
+//   #########
+//
+// #############
+// #AA.D.....BD#
+// ###B#.#.#.###
+//   #D#.#C#.#
+//   #D#B#C#C#
+//   #A#B#C#A#
+//   #########
+//
+// #############
+// #AA.D......D#
+// ###B#.#.#.###
+//   #D#B#C#.#
+//   #D#B#C#C#
+//   #A#B#C#A#
+//   #########
+//
+// #############
+// #AA.D......D#
+// ###B#.#C#.###
+//   #D#B#C#.#
+//   #D#B#C#.#
+//   #A#B#C#A#
+//   #########
+//
+// #############
+// #AA.D.....AD#
+// ###B#.#C#.###
+//   #D#B#C#.#
+//   #D#B#C#.#
+//   #A#B#C#.#
+//   #########
+//
+// #############
+// #AA.......AD#
+// ###B#.#C#.###
+//   #D#B#C#.#
+//   #D#B#C#.#
+//   #A#B#C#D#
+//   #########
+//
+// #############
+// #AA.......AD#
+// ###.#B#C#.###
+//   #D#B#C#.#
+//   #D#B#C#.#
+//   #A#B#C#D#
+//   #########
+//
+// #############
+// #AA.......AD#
+// ###.#B#C#.###
+//   #.#B#C#.#
+//   #D#B#C#D#
+//   #A#B#C#D#
+//   #########
+//
+// #############
+// #AA.D.....AD#
+// ###.#B#C#.###
+//   #.#B#C#.#
+//   #.#B#C#D#
+//   #A#B#C#D#
+//   #########
+//
+// #############
+// #A..D.....AD#
+// ###.#B#C#.###
+//   #.#B#C#.#
+//   #A#B#C#D#
+//   #A#B#C#D#
+//   #########
+//
+// #############
+// #...D.....AD#
+// ###.#B#C#.###
+//   #A#B#C#.#
+//   #A#B#C#D#
+//   #A#B#C#D#
+//   #########
+//
+// #############
+// #.........AD#
+// ###.#B#C#.###
+//   #A#B#C#D#
+//   #A#B#C#D#
+//   #A#B#C#D#
+//   #########
+//
+// #############
+// #..........D#
+// ###A#B#C#.###
+//   #A#B#C#D#
+//   #A#B#C#D#
+//   #A#B#C#D#
+//   #########
+//
+// #############
+// #...........#
+// ###A#B#C#D###
+//   #A#B#C#D#
+//   #A#B#C#D#
+//   #A#B#C#D#
+//   #########
+//
+// Using the initial configuration from the full diagram, what is the least energy required to organize the amphipods?
+
 fn part2() !usize {
-    return 0;
+    var burrow = Burrow.init_part2(input);
+    return try burrow.calculate_cost();
 }
