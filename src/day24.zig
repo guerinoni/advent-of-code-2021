@@ -178,23 +178,57 @@ fn part1(value: *[14]u8) !bool {
     return true;
 }
 
+// --- Part Two ---
+// 
+// As the submarine starts booting up things like the Retro Encabulator, you realize that maybe you don't need all these submarine features after all.
+// 
+// What is the smallest model number accepted by MONAD?
 
 fn part2(value: *[14]u8) !bool {
+    var lines = std.mem.tokenize(u8, input, "\r\n");
+    var input_idx: u8 = 0;
+    var stack = std.BoundedArray(PendingDigit, 7).init(0) catch unreachable;
+    while (lines.next()) |_| : (input_idx += 1) {
+        var ignore = lines.next().?;
+        ignore = lines.next().?;
+        ignore = lines.next().?;
+        const pop_line = lines.next().?;
+        const pop = pop_line.len == 8;
+        const add_1_line = lines.next().?;
+        const add1 = try std.fmt.parseInt(i8, add_1_line[6..], 10);
+        ignore = lines.next().?;
+        ignore = lines.next().?;
+        ignore = lines.next().?;
+        ignore = lines.next().?;
+        ignore = lines.next().?;
+        ignore = lines.next().?;
+        ignore = lines.next().?;
+        ignore = lines.next().?;
+        ignore = lines.next().?;
+        const add_2_line = lines.next().?;
+        const add2 = try std.fmt.parseInt(i8, add_2_line[6..], 10);
+        ignore = lines.next().?;
+        ignore = lines.next().?;
 
-const parseInt = std.fmt.parseInt;
-const parseFloat = std.fmt.parseFloat;
+        if (!pop) {
+            stack.appendAssumeCapacity(.{
+                .index = input_idx,
+                .add2 = add2,
+            });
+        } else {
+            const pair = stack.pop();
+            const diff = add1 + pair.add2;
+            if (diff > 0) {
+                const diff_u8 = @intCast(u8, diff);
+                value[pair.index] = '1';
+                value[input_idx] = '1' + diff_u8;
+            } else {
+                const diff_u8 = @intCast(u8, -diff);
+                value[pair.index] = '1' + diff_u8;
+                value[input_idx] = '1';
+            }
+        }
+    }
 
-const min = std.math.min;
-const min3 = std.math.min3;
-const max = std.math.max;
-const max3 = std.math.max3;
-
-const assert = std.debug.assert;
-
-const sort = std.sort.sort;
-const asc = std.sort.asc;
-const desc = std.sort.desc;
-
-fn part2() !u32 {
-    return 0;
+    return true;
 }
