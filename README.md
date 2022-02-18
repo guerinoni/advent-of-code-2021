@@ -3,6 +3,6 @@ Advent of Code 2021
 
 ## Zig in docker
 ```bash
-docker build .
-docker run -it -v $(pwd):/home <your id>
+docker build -t zig .
+docker run -it -v $(pwd):/home zig
 ```
